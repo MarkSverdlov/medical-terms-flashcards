@@ -156,7 +156,7 @@ class FlashCardApp:
             fg="white",
             bg="#2c3e50",
         )
-        title_label.pack()
+        title_label.place(relx=0.5, rely=0.65, anchor="center")
 
         # Card area
         self.card_frame = tk.Frame(
