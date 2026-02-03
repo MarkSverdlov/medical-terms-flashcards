@@ -341,13 +341,27 @@ class App:
     def _start_simple_mode(self):
         """Switch to simple mode (flashcard game)."""
         self.main_menu.hide()
-        self.flashcard_app = FlashCardApp(self.root, self.cards.copy(), self._back_to_menu, mode="simple")
+
+        # Create clone deck for the mode
+        mode_cards = self.cards.copy()
+
+        # Shuffle the deck
+        random.shuffle(mode_cards)
+
+        self.flashcard_app = FlashCardApp(self.root, mode_cards, self._back_to_menu, mode="simple")
         self.flashcard_app.show()
 
     def _start_inverted_mode(self):
         """Switch to inverted mode (flashcard game with swapped front/back)."""
         self.main_menu.hide()
-        self.flashcard_app = FlashCardApp(self.root, self.cards.copy(), self._back_to_menu, mode="inverted")
+
+        # Create clone deck for the mode
+        mode_cards = self.cards.copy()
+
+        # Shuffle the deck
+        random.shuffle(mode_cards)
+
+        self.flashcard_app = FlashCardApp(self.root, mode_cards, self._back_to_menu, mode="inverted")
         self.flashcard_app.show()
 
     def _back_to_menu(self):
