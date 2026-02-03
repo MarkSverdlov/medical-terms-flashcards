@@ -56,9 +56,10 @@ def parse_markdown_tables(filepath: str) -> list[dict]:
 class MainMenu:
     """Main menu screen."""
 
-    def __init__(self, parent: tk.Frame, start_simple_mode: callable):
+    def __init__(self, parent: tk.Frame, start_simple_mode: callable, start_inverted_mode: callable):
         self.frame = tk.Frame(parent, bg="#2c3e50")
         self.start_simple_mode = start_simple_mode
+        self.start_inverted_mode = start_inverted_mode
         self._setup_ui()
 
     def _setup_ui(self):
@@ -94,6 +95,17 @@ class MainMenu:
         )
         simple_mode_btn.pack(pady=10)
 
+        # Inverted Mode button
+        inverted_mode_btn = tk.Button(
+            self.frame,
+            text="Inverted Mode",
+            font=("Helvetica", 14),
+            command=self.start_inverted_mode,
+            width=15,
+            height=2,
+        )
+        inverted_mode_btn.pack(pady=10)
+
     def show(self):
         """Show the main menu."""
         self.frame.pack(fill=tk.BOTH, expand=True)
@@ -104,9 +116,9 @@ class MainMenu:
 
 
 class FlashCardApp:
-    """Tkinter-based flash card application (Simple Mode)."""
+    """Tkinter-based flash card application."""
 
-    def __init__(self, root: tk.Tk, cards: list[dict], on_back_to_menu: callable = None):
+    def __init__(self, root: tk.Tk, cards: list[dict], on_back_to_menu: callable = None, mode: str = "simple"):
         self.root = root
         self.frame = tk.Frame(root, bg="#2c3e50")
         self.cards = cards
@@ -114,6 +126,7 @@ class FlashCardApp:
         self.current_index = 0
         self.is_flipped = False
         self.on_back_to_menu = on_back_to_menu
+        self.mode = mode
 
         self._setup_ui()
         self._bind_keys()
@@ -135,9 +148,10 @@ class FlashCardApp:
             )
             back_btn.pack(side=tk.LEFT, padx=20)
 
+        title_text = "Simple Mode" if self.mode == "simple" else "Inverted Mode"
         title_label = tk.Label(
             header_frame,
-            text="Simple Mode",
+            text=title_text,
             font=("Helvetica", 20, "bold"),
             fg="white",
             bg="#2c3e50",
@@ -241,20 +255,28 @@ class FlashCardApp:
 
         card = self.cards[self.current_index]
 
-        if self.is_flipped:
-            # Show interpretation and extra info (fix RTL for Hebrew text)
-            text = fix_rtl(card["interpretation"])
+        if self.mode == "simple":
+            front_text = card["term"]
+            back_text = fix_rtl(card["interpretation"])
             if card["extra"]:
-                text += f"\n\n({fix_rtl(card['extra'])})"
-            self.term_label.config(text=text, fg="#27ae60")
-            self.hint_label.config(text="(click to see term)")
+                back_text += f"\n\n({fix_rtl(card['extra'])})"
+            front_hint = "(click to flip)"
+            back_hint = "(click to see term)"
+        else:  # inverted mode
+            front_text = fix_rtl(card["interpretation"])
+            back_text = card["term"]
+            front_hint = "(click to flip)"
+            back_hint = "(click to see interpretation)"
+
+        if self.is_flipped:
+            self.term_label.config(text=back_text, fg="#27ae60")
+            self.hint_label.config(text=back_hint)
             self.card_frame.config(bg="#d5f5e3")
             self.term_label.config(bg="#d5f5e3")
             self.hint_label.config(bg="#d5f5e3")
         else:
-            # Show term
-            self.term_label.config(text=card["term"], fg="#2c3e50")
-            self.hint_label.config(text="(click to flip)")
+            self.term_label.config(text=front_text, fg="#2c3e50")
+            self.hint_label.config(text=front_hint)
             self.card_frame.config(bg="#ecf0f1")
             self.term_label.config(bg="#ecf0f1")
             self.hint_label.config(bg="#ecf0f1")
@@ -310,7 +332,7 @@ class App:
         self.root.configure(bg="#2c3e50")
 
         # Create screens
-        self.main_menu = MainMenu(self.root, self._start_simple_mode)
+        self.main_menu = MainMenu(self.root, self._start_simple_mode, self._start_inverted_mode)
         self.flashcard_app = None
 
         # Show main menu
@@ -319,7 +341,13 @@ class App:
     def _start_simple_mode(self):
         """Switch to simple mode (flashcard game)."""
         self.main_menu.hide()
-        self.flashcard_app = FlashCardApp(self.root, self.cards.copy(), self._back_to_menu)
+        self.flashcard_app = FlashCardApp(self.root, self.cards.copy(), self._back_to_menu, mode="simple")
+        self.flashcard_app.show()
+
+    def _start_inverted_mode(self):
+        """Switch to inverted mode (flashcard game with swapped front/back)."""
+        self.main_menu.hide()
+        self.flashcard_app = FlashCardApp(self.root, self.cards.copy(), self._back_to_menu, mode="inverted")
         self.flashcard_app.show()
 
     def _back_to_menu(self):
