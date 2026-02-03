@@ -53,19 +53,67 @@ def parse_markdown_tables(filepath: str) -> list[dict]:
     return cards
 
 
-class FlashCardApp:
-    """Tkinter-based flash card application."""
+class MainMenu:
+    """Main menu screen."""
 
-    def __init__(self, root: tk.Tk, cards: list[dict]):
+    def __init__(self, parent: tk.Frame, start_simple_mode: callable):
+        self.frame = tk.Frame(parent, bg="#2c3e50")
+        self.start_simple_mode = start_simple_mode
+        self._setup_ui()
+
+    def _setup_ui(self):
+        """Set up the main menu UI."""
+        # Title
+        title_label = tk.Label(
+            self.frame,
+            text="Flash Card Game",
+            font=("Helvetica", 28, "bold"),
+            fg="white",
+            bg="#2c3e50",
+        )
+        title_label.pack(pady=(80, 10))
+
+        # Subtitle
+        subtitle_label = tk.Label(
+            self.frame,
+            text="Medical Terminology",
+            font=("Helvetica", 16),
+            fg="#bdc3c7",
+            bg="#2c3e50",
+        )
+        subtitle_label.pack(pady=(0, 50))
+
+        # Simple Mode button
+        simple_mode_btn = tk.Button(
+            self.frame,
+            text="Simple Mode",
+            font=("Helvetica", 14),
+            command=self.start_simple_mode,
+            width=15,
+            height=2,
+        )
+        simple_mode_btn.pack(pady=10)
+
+    def show(self):
+        """Show the main menu."""
+        self.frame.pack(fill=tk.BOTH, expand=True)
+
+    def hide(self):
+        """Hide the main menu."""
+        self.frame.pack_forget()
+
+
+class FlashCardApp:
+    """Tkinter-based flash card application (Simple Mode)."""
+
+    def __init__(self, root: tk.Tk, cards: list[dict], on_back_to_menu: callable = None):
         self.root = root
+        self.frame = tk.Frame(root, bg="#2c3e50")
         self.cards = cards
         self.original_order = cards.copy()
         self.current_index = 0
         self.is_flipped = False
-
-        self.root.title("Flash Card Game - Medical Terminology")
-        self.root.geometry("600x400")
-        self.root.configure(bg="#2c3e50")
+        self.on_back_to_menu = on_back_to_menu
 
         self._setup_ui()
         self._bind_keys()
@@ -73,13 +121,23 @@ class FlashCardApp:
 
     def _setup_ui(self):
         """Set up the user interface."""
-        # Title
-        title_frame = tk.Frame(self.root, bg="#2c3e50")
-        title_frame.pack(fill=tk.X, pady=10)
+        # Header with back button and title
+        header_frame = tk.Frame(self.frame, bg="#2c3e50")
+        header_frame.pack(fill=tk.X, pady=10)
+
+        # Back to Menu button (left side)
+        if self.on_back_to_menu:
+            back_btn = tk.Button(
+                header_frame,
+                text="← Menu",
+                font=("Helvetica", 10),
+                command=self.on_back_to_menu,
+            )
+            back_btn.pack(side=tk.LEFT, padx=20)
 
         title_label = tk.Label(
-            title_frame,
-            text="Flash Card Game",
+            header_frame,
+            text="Simple Mode",
             font=("Helvetica", 20, "bold"),
             fg="white",
             bg="#2c3e50",
@@ -88,7 +146,7 @@ class FlashCardApp:
 
         # Card area
         self.card_frame = tk.Frame(
-            self.root,
+            self.frame,
             bg="#ecf0f1",
             relief=tk.RAISED,
             borderwidth=3,
@@ -121,7 +179,7 @@ class FlashCardApp:
         self.hint_label.bind("<Button-1>", lambda e: self._flip_card())
 
         # Navigation frame
-        nav_frame = tk.Frame(self.root, bg="#2c3e50")
+        nav_frame = tk.Frame(self.frame, bg="#2c3e50")
         nav_frame.pack(fill=tk.X, pady=10)
 
         # Previous button
@@ -155,7 +213,7 @@ class FlashCardApp:
         self.next_btn.pack(side=tk.RIGHT, padx=20)
 
         # Shuffle button frame
-        shuffle_frame = tk.Frame(self.root, bg="#2c3e50")
+        shuffle_frame = tk.Frame(self.frame, bg="#2c3e50")
         shuffle_frame.pack(fill=tk.X, pady=(0, 15))
 
         self.shuffle_btn = tk.Button(
@@ -231,6 +289,46 @@ class FlashCardApp:
         self.is_flipped = False
         self._show_card()
 
+    def show(self):
+        """Show the flashcard screen."""
+        self.frame.pack(fill=tk.BOTH, expand=True)
+
+    def hide(self):
+        """Hide the flashcard screen."""
+        self.frame.pack_forget()
+
+
+class App:
+    """Main application managing screens."""
+
+    def __init__(self, root: tk.Tk, cards: list[dict]):
+        self.root = root
+        self.cards = cards
+
+        self.root.title("Flash Card Game - Medical Terminology")
+        self.root.geometry("600x400")
+        self.root.configure(bg="#2c3e50")
+
+        # Create screens
+        self.main_menu = MainMenu(self.root, self._start_simple_mode)
+        self.flashcard_app = None
+
+        # Show main menu
+        self.main_menu.show()
+
+    def _start_simple_mode(self):
+        """Switch to simple mode (flashcard game)."""
+        self.main_menu.hide()
+        self.flashcard_app = FlashCardApp(self.root, self.cards.copy(), self._back_to_menu)
+        self.flashcard_app.show()
+
+    def _back_to_menu(self):
+        """Return to main menu."""
+        if self.flashcard_app:
+            self.flashcard_app.hide()
+            self.flashcard_app = None
+        self.main_menu.show()
+
 
 def main():
     """Main entry point."""
@@ -247,7 +345,7 @@ def main():
 
     # Create and run the app
     root = tk.Tk()
-    app = FlashCardApp(root, cards)
+    app = App(root, cards)
     root.mainloop()
 
 
