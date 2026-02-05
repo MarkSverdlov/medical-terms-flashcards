@@ -264,7 +264,7 @@ class FlashCardApp:
             back_hint = "(click to see term)"
         else:  # inverted mode
             front_text = fix_rtl(card["interpretation"])
-            back_text = card["term"]
+            back_text = fix_rtl(card["term"])
             front_hint = "(click to flip)"
             back_hint = "(click to see interpretation)"
 
