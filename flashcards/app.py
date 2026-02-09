@@ -208,7 +208,7 @@ class FlashCardApp:
         self.term_label = tk.Label(
             self.card_frame,
             text="",
-            font=("Helvetica", 28, "bold"),
+            font=("Helvetica", 22, "bold"),
             fg="#2c3e50",
             bg="#ecf0f1",
             wraplength=500,
@@ -409,7 +409,7 @@ class QuizCardApp:
         self.interpretation_label = tk.Label(
             self.card_frame,
             text="",
-            font=("Helvetica", 28, "bold"),
+            font=("Helvetica", 22, "bold"),
             fg="#2c3e50",
             bg="#ecf0f1",
             wraplength=500,
