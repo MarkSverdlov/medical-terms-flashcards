@@ -2,7 +2,6 @@
 | ---- | -------------- | ------- |
 | -tension | לחץ דם |
 | -cardia | דופק |
-| -pnea | נשימה |
 | -thermia | חום |
 | -glycemia | סוכר |
 | -meter | מכשיר מדידה |
@@ -18,18 +17,17 @@
 | superior | עליון | |
 | inferior | תחתון | |
 | lateral | צד | |
-| meidal | אמצעי | |
+| meidal, mid | אמצע, אמצעי | |
 | proximal | קרוב לגוף | |
 | distal | רחוק מהגוף | |
 | mid | אמצע | |
 | cranium, cranial | גולגולת | |
 | cephalus | ראש | |
 | cerebro | מוח | |
-| pectoral | חזה | |
-| thoracic, thorax | חזה | |
+| thoracic, thorax, pectoral | חזה | |
 | cardio | לב | |
 | pulmo | ריאה | |
-| pnea | נשימה/אוויר | |
+| pnea, pneumo- | נשימה/אוויר | pneumothorax = חזה אוויר |
 | gastro | קיבה, מע' עיכול | |
 | neuro | מע' העצבים | |
 | nephro | כליות | |
@@ -38,7 +36,6 @@
 | tachy- | מהיר | tachypnea = נשימה מהירה |
 | brady- | איטי | bradypnea = נשימה איטית |
 | hemo- | דם | hemothorax = חזה דם |
-| pneumo- | אוויר | pneumothorax = חזה אוויר |
 | -emia | בדם | bactermia = חיידק בדם |
 | -itis | דלקת | appendicitis = דלקת בתוספתן |
 | -osis | מצב של | cyanosis = (מצב של) כיחלון |
