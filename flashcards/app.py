@@ -82,7 +82,30 @@ class MainMenu:
             fg="#bdc3c7",
             bg="#2c3e50",
         )
-        subtitle_label.pack(pady=(0, 50))
+        subtitle_label.pack(pady=(0, 30))
+
+        # Card count configuration
+        config_frame = tk.Frame(self.frame, bg="#2c3e50")
+        config_frame.pack(pady=20)
+
+        tk.Label(
+            config_frame,
+            text="Number of cards:",
+            font=("Helvetica", 12),
+            fg="white",
+            bg="#2c3e50",
+        ).pack(side="left")
+
+        self.card_count_var = tk.IntVar(value=100)
+        self.card_count_spinbox = tk.Spinbox(
+            config_frame,
+            from_=10,
+            to=500,
+            textvariable=self.card_count_var,
+            width=5,
+            font=("Helvetica", 12),
+        )
+        self.card_count_spinbox.pack(side="left", padx=10)
 
         # Simple Mode button
         simple_mode_btn = tk.Button(
@@ -105,6 +128,10 @@ class MainMenu:
             height=2,
         )
         inverted_mode_btn.pack(pady=10)
+
+    def get_card_count(self) -> int:
+        """Return the selected number of cards."""
+        return self.card_count_var.get()
 
     def show(self):
         """Show the main menu."""
@@ -343,7 +370,8 @@ class App:
         self.main_menu.hide()
 
         # Create clone deck for the mode
-        mode_cards = random.choices(self.cards, k=100)
+        card_count = self.main_menu.get_card_count()
+        mode_cards = random.choices(self.cards, k=card_count)
 
         # Shuffle the deck
         random.shuffle(mode_cards)
@@ -356,7 +384,8 @@ class App:
         self.main_menu.hide()
 
         # Create clone deck for the mode
-        mode_cards = random.choices(self.cards, k=100)
+        card_count = self.main_menu.get_card_count()
+        mode_cards = random.choices(self.cards, k=card_count)
 
         # Shuffle the deck
         random.shuffle(mode_cards)
