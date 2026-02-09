@@ -95,3 +95,23 @@ bradycardia = דופק איטי
 | semipermeable membrane | קרום שרק חלק מהחומרים יכולים לעבור בו
 | hypoxia | חוסר חמצן ברקמות הגוף
 | hypoxemia | חוסר חמצן בדם |
+
+
+carido-pulmonary resuscitation
+===============================
+| term | interpretation | explanation |
+| ---- | -------------- | ----------- |
+| cardiopulmonary resuscitation | החייאת לב ריאה, CPR | |
+| perfusion | זילוח של דם לאיבר או לרקמה | |
+| organ | איבר | איגוד של רקמות לפי פונקציונליות |
+| tissue | רקמה | איגוד של תאים דומים |
+| capillary | נים | |
+| vein | וריד | נכנס לתוך הלב |
+| artery | עורק | יוצא החוצה מהלב |
+| arteria carotis | קרוטיד | העורק שמעביר חמצן למוח ולראש |
+| arteria brachialis | ברכיאלי | העורק שמזרים חמצן לזרוע |
+| AED | דפיבלירטור | Automated External Defibilirator |
+| ventricular fibrillation | פרפור חדרים | מצב לבבי בו כתוצאה מכשל בקוצב הלב הלב פועם במהירות tachycardia אבל לא מצליח לבצע פרפוזיה בפועל |
+| agonal respiration | תבנית נשימה אבנורמלית כתוצאה מרפלקס של brain stem, מעיד על היעדר פרפוזיה מוחית |
+| clinical death | מוות קליני, היעדר נשימה ולב | |
+| brain death | מוות מוחי, נזק בלתי הפיך למוח | 4-6 דקות לאחר מוות קליני | |
