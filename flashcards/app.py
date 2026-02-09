@@ -343,7 +343,7 @@ class App:
         self.main_menu.hide()
 
         # Create clone deck for the mode
-        mode_cards = self.cards.copy()
+        mode_cards = random.choices(self.cards, k=100)
 
         # Shuffle the deck
         random.shuffle(mode_cards)
@@ -356,7 +356,7 @@ class App:
         self.main_menu.hide()
 
         # Create clone deck for the mode
-        mode_cards = self.cards.copy()
+        mode_cards = random.choices(self.cards, k=100)
 
         # Shuffle the deck
         random.shuffle(mode_cards)
