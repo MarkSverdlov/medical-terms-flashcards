@@ -73,7 +73,7 @@ class MainMenu:
             fg="white",
             bg="#2c3e50",
         )
-        title_label.pack(pady=(80, 10))
+        title_label.pack(pady=(20, 5))
 
         # Subtitle
         subtitle_label = tk.Label(
@@ -83,11 +83,11 @@ class MainMenu:
             fg="#bdc3c7",
             bg="#2c3e50",
         )
-        subtitle_label.pack(pady=(0, 30))
+        subtitle_label.pack(pady=(0, 10))
 
         # Card count configuration
         config_frame = tk.Frame(self.frame, bg="#2c3e50")
-        config_frame.pack(pady=20)
+        config_frame.pack(pady=10)
 
         tk.Label(
             config_frame,
@@ -115,9 +115,8 @@ class MainMenu:
             font=("Helvetica", 14),
             command=self.start_simple_mode,
             width=15,
-            height=2,
         )
-        simple_mode_btn.pack(pady=10)
+        simple_mode_btn.pack(pady=5)
 
         # Inverted Mode button
         inverted_mode_btn = tk.Button(
@@ -126,9 +125,8 @@ class MainMenu:
             font=("Helvetica", 14),
             command=self.start_inverted_mode,
             width=15,
-            height=2,
         )
-        inverted_mode_btn.pack(pady=10)
+        inverted_mode_btn.pack(pady=5)
 
         # Quiz Mode button
         quiz_mode_btn = tk.Button(
@@ -137,9 +135,8 @@ class MainMenu:
             font=("Helvetica", 14),
             command=self.start_quiz_mode,
             width=15,
-            height=2,
         )
-        quiz_mode_btn.pack(pady=10)
+        quiz_mode_btn.pack(pady=5)
 
     def get_card_count(self) -> int:
         """Return the selected number of cards."""
