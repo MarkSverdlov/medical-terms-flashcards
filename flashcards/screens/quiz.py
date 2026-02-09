@@ -9,9 +9,17 @@ from ..utils import fix_rtl
 class QuizCardApp(BaseCardApp):
     """Quiz mode - type the term for the shown interpretation."""
 
-    def __init__(self, root: tk.Tk, cards: list[dict], on_back_to_menu: callable = None):
+    def __init__(
+        self,
+        root: tk.Tk,
+        cards: list[dict],
+        on_back_to_menu: callable = None,
+        on_quiz_complete: callable = None,
+    ):
         super().__init__(root, cards, on_back_to_menu)
         self.current_answered = False
+        self.correct_count = 0
+        self.on_quiz_complete = on_quiz_complete
 
         self._setup_ui()
         self._bind_keys()
@@ -143,6 +151,10 @@ class QuizCardApp(BaseCardApp):
         user_terms = {normalize(t) for t in user_answer.split(",") if normalize(t)}
         correct_terms = {normalize(t) for t in correct_term.split(",") if normalize(t)}
 
+        is_correct = user_terms == correct_terms or (user_terms and user_terms.issubset(correct_terms))
+        if is_correct:
+            self.correct_count += 1
+
         if user_terms == correct_terms:
             self._show_feedback("Correct!", "", is_correct=True)
         elif user_terms and user_terms.issubset(correct_terms):
@@ -167,6 +179,11 @@ class QuizCardApp(BaseCardApp):
     def _handle_return(self):
         """Handle Return key - submit if not answered, next card if answered."""
         if self.current_answered:
-            self._next_card()
+            if self.current_index >= len(self.cards) - 1:
+                # Last card - trigger quiz complete
+                if self.on_quiz_complete:
+                    self.on_quiz_complete(self.correct_count, len(self.cards))
+            else:
+                self._next_card()
         else:
             self._submit_answer()

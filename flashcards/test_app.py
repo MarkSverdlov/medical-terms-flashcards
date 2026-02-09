@@ -15,7 +15,11 @@ from flashcards.app import (
     MainMenu,
     FlashCardApp,
     QuizCardApp,
+    ScoreboardScreen,
     App,
+    load_quiz_history,
+    save_quiz_result,
+    get_history_path,
 )
 
 
@@ -268,12 +272,14 @@ class TestMainMenu:
         simple_cb = MagicMock()
         inverted_cb = MagicMock()
         quiz_cb = MagicMock()
+        scoreboard_cb = MagicMock()
 
-        menu = MainMenu(parent, simple_cb, inverted_cb, quiz_cb)
+        menu = MainMenu(parent, simple_cb, inverted_cb, quiz_cb, scoreboard_cb)
 
         assert menu.start_simple_mode == simple_cb
         assert menu.start_inverted_mode == inverted_cb
         assert menu.start_quiz_mode == quiz_cb
+        assert menu.start_scoreboard_mode == scoreboard_cb
 
     @patch('tkinter.Frame')
     @patch('tkinter.Label')
@@ -288,7 +294,7 @@ class TestMainMenu:
         mock_intvar.return_value = mock_intvar_instance
 
         parent = MagicMock()
-        menu = MainMenu(parent, MagicMock(), MagicMock(), MagicMock())
+        menu = MainMenu(parent, MagicMock(), MagicMock(), MagicMock(), MagicMock())
 
         assert menu.get_card_count() == 100
 
@@ -305,7 +311,7 @@ class TestMainMenu:
         mock_intvar.return_value = mock_intvar_instance
 
         parent = MagicMock()
-        menu = MainMenu(parent, MagicMock(), MagicMock(), MagicMock())
+        menu = MainMenu(parent, MagicMock(), MagicMock(), MagicMock(), MagicMock())
 
         assert menu.get_card_count() == 250
 
@@ -322,7 +328,7 @@ class TestMainMenu:
         mock_frame.return_value = mock_frame_instance
 
         parent = MagicMock()
-        menu = MainMenu(parent, MagicMock(), MagicMock(), MagicMock())
+        menu = MainMenu(parent, MagicMock(), MagicMock(), MagicMock(), MagicMock())
 
         menu.show()
         mock_frame_instance.pack.assert_called()
@@ -671,6 +677,468 @@ class TestQuizAnswerValidation:
         """Test medical abbreviations."""
         assert self.check_answer("cpr", "CPR") == "correct"
         assert self.check_answer("IV", "iv") == "correct"
+
+
+# =============================================================================
+# Tests for load_quiz_history and ScoreboardScreen
+# =============================================================================
+
+class TestLoadQuizHistory:
+    """Tests for the load_quiz_history function."""
+
+    def test_load_empty_when_file_missing(self, tmp_path, monkeypatch):
+        """Test that empty list is returned when history file doesn't exist."""
+        monkeypatch.setattr(
+            "flashcards.history.get_history_path",
+            lambda: tmp_path / "nonexistent" / "history.csv"
+        )
+        result = load_quiz_history()
+        assert result == []
+
+    def test_load_quiz_history_with_data(self, tmp_path, monkeypatch):
+        """Test loading history with valid data."""
+        history_file = tmp_path / "history.csv"
+        history_file.write_text(
+            "time,number_of_questions,number_of_correct_answers\n"
+            "2024-01-15T10:30:00,20,15\n"
+            "2024-01-16T14:00:00,30,28\n",
+            encoding="utf-8"
+        )
+        monkeypatch.setattr(
+            "flashcards.history.get_history_path",
+            lambda: history_file
+        )
+
+        result = load_quiz_history()
+
+        assert len(result) == 2
+        assert result[0]["time"] == "2024-01-15T10:30:00"
+        assert result[0]["total"] == 20
+        assert result[0]["correct"] == 15
+        assert result[1]["time"] == "2024-01-16T14:00:00"
+        assert result[1]["total"] == 30
+        assert result[1]["correct"] == 28
+
+    def test_load_quiz_history_empty_file(self, tmp_path, monkeypatch):
+        """Test loading history from empty file with just headers."""
+        history_file = tmp_path / "history.csv"
+        history_file.write_text(
+            "time,number_of_questions,number_of_correct_answers\n",
+            encoding="utf-8"
+        )
+        monkeypatch.setattr(
+            "flashcards.history.get_history_path",
+            lambda: history_file
+        )
+
+        result = load_quiz_history()
+        assert result == []
+
+
+class TestSaveQuizResult:
+    """Tests for the save_quiz_result function."""
+
+    def test_creates_directory_if_missing(self, tmp_path, monkeypatch):
+        """Test that save_quiz_result creates parent directories if they don't exist."""
+        history_file = tmp_path / "new_dir" / "subdir" / "history.csv"
+        monkeypatch.setattr(
+            "flashcards.history.get_history_path",
+            lambda: history_file
+        )
+
+        save_quiz_result(total=10, correct=8)
+
+        assert history_file.exists()
+        assert history_file.parent.exists()
+
+    def test_creates_file_with_headers(self, tmp_path, monkeypatch):
+        """Test that save_quiz_result creates file with CSV headers."""
+        history_file = tmp_path / "history.csv"
+        monkeypatch.setattr(
+            "flashcards.history.get_history_path",
+            lambda: history_file
+        )
+
+        save_quiz_result(total=10, correct=8)
+
+        content = history_file.read_text()
+        lines = content.strip().split("\n")
+        assert lines[0] == "time,number_of_questions,number_of_correct_answers"
+
+    def test_appends_result_to_file(self, tmp_path, monkeypatch):
+        """Test that save_quiz_result appends result row."""
+        history_file = tmp_path / "history.csv"
+        monkeypatch.setattr(
+            "flashcards.history.get_history_path",
+            lambda: history_file
+        )
+
+        save_quiz_result(total=10, correct=8)
+
+        content = history_file.read_text()
+        lines = content.strip().split("\n")
+        assert len(lines) == 2  # header + 1 result
+        parts = lines[1].split(",")
+        assert parts[1] == "10"
+        assert parts[2] == "8"
+
+    def test_appends_multiple_results(self, tmp_path, monkeypatch):
+        """Test that multiple saves append correctly."""
+        history_file = tmp_path / "history.csv"
+        monkeypatch.setattr(
+            "flashcards.history.get_history_path",
+            lambda: history_file
+        )
+
+        save_quiz_result(total=10, correct=8)
+        save_quiz_result(total=20, correct=15)
+        save_quiz_result(total=5, correct=5)
+
+        content = history_file.read_text()
+        lines = content.strip().split("\n")
+        assert len(lines) == 4  # header + 3 results
+
+    def test_does_not_duplicate_headers(self, tmp_path, monkeypatch):
+        """Test that headers are only written once."""
+        history_file = tmp_path / "history.csv"
+        monkeypatch.setattr(
+            "flashcards.history.get_history_path",
+            lambda: history_file
+        )
+
+        save_quiz_result(total=10, correct=8)
+        save_quiz_result(total=20, correct=15)
+
+        content = history_file.read_text()
+        header_count = content.count("time,number_of_questions")
+        assert header_count == 1
+
+    def test_writes_iso_timestamp(self, tmp_path, monkeypatch):
+        """Test that timestamp is in ISO format."""
+        history_file = tmp_path / "history.csv"
+        monkeypatch.setattr(
+            "flashcards.history.get_history_path",
+            lambda: history_file
+        )
+
+        save_quiz_result(total=10, correct=8)
+
+        content = history_file.read_text()
+        lines = content.strip().split("\n")
+        timestamp = lines[1].split(",")[0]
+        # ISO format should contain T separator and have proper structure
+        assert "T" in timestamp
+        assert len(timestamp) >= 19  # YYYY-MM-DDTHH:MM:SS minimum
+
+
+class TestQuizResultsScreen:
+    """Tests for the QuizResultsScreen class."""
+
+    @patch('tkinter.Frame')
+    @patch('tkinter.Label')
+    @patch('tkinter.Button')
+    def test_initialization(self, mock_button, mock_label, mock_frame, mock_root):
+        """Test QuizResultsScreen initialization."""
+        mock_frame.return_value = MagicMock()
+        mock_label.return_value = MagicMock()
+        mock_button.return_value = MagicMock()
+
+        from flashcards.app import QuizResultsScreen
+        screen = QuizResultsScreen(mock_root, correct_count=8, total=10)
+
+        assert screen.correct_count == 8
+        assert screen.total == 10
+
+    @patch('tkinter.Frame')
+    @patch('tkinter.Label')
+    @patch('tkinter.Button')
+    def test_percentage_calculation_normal(self, mock_button, mock_label, mock_frame, mock_root):
+        """Test percentage is calculated correctly."""
+        mock_frame.return_value = MagicMock()
+        mock_label_instance = MagicMock()
+        mock_label.return_value = mock_label_instance
+        mock_button.return_value = MagicMock()
+
+        from flashcards.app import QuizResultsScreen
+        screen = QuizResultsScreen(mock_root, correct_count=8, total=10)
+
+        # Check that label was called with correct percentage
+        label_calls = mock_label.call_args_list
+        score_call = [c for c in label_calls if "80%" in str(c)]
+        assert len(score_call) == 1
+
+    @patch('tkinter.Frame')
+    @patch('tkinter.Label')
+    @patch('tkinter.Button')
+    def test_percentage_zero_total(self, mock_button, mock_label, mock_frame, mock_root):
+        """Test percentage with zero total doesn't crash."""
+        mock_frame.return_value = MagicMock()
+        mock_label.return_value = MagicMock()
+        mock_button.return_value = MagicMock()
+
+        from flashcards.app import QuizResultsScreen
+        # Should not raise ZeroDivisionError
+        screen = QuizResultsScreen(mock_root, correct_count=0, total=0)
+
+        assert screen.total == 0
+
+    @patch('tkinter.Frame')
+    @patch('tkinter.Label')
+    @patch('tkinter.Button')
+    def test_back_callback_wired(self, mock_button, mock_label, mock_frame, mock_root):
+        """Test that back callback is stored."""
+        mock_frame.return_value = MagicMock()
+        mock_label.return_value = MagicMock()
+        mock_button.return_value = MagicMock()
+
+        back_cb = MagicMock()
+        from flashcards.app import QuizResultsScreen
+        screen = QuizResultsScreen(mock_root, correct_count=5, total=10, on_back_to_menu=back_cb)
+
+        assert screen.on_back_to_menu == back_cb
+
+    @patch('tkinter.Frame')
+    @patch('tkinter.Label')
+    @patch('tkinter.Button')
+    def test_show_hide(self, mock_button, mock_label, mock_frame, mock_root):
+        """Test show and hide methods."""
+        mock_frame_instance = MagicMock()
+        mock_frame.return_value = mock_frame_instance
+        mock_label.return_value = MagicMock()
+        mock_button.return_value = MagicMock()
+
+        from flashcards.app import QuizResultsScreen
+        screen = QuizResultsScreen(mock_root, correct_count=5, total=10)
+
+        screen.show()
+        mock_frame_instance.pack.assert_called()
+
+        screen.hide()
+        mock_frame_instance.pack_forget.assert_called()
+
+    @patch('tkinter.Frame')
+    @patch('tkinter.Label')
+    @patch('tkinter.Button')
+    def test_perfect_score_display(self, mock_button, mock_label, mock_frame, mock_root):
+        """Test display with perfect score."""
+        mock_frame.return_value = MagicMock()
+        mock_label.return_value = MagicMock()
+        mock_button.return_value = MagicMock()
+
+        from flashcards.app import QuizResultsScreen
+        screen = QuizResultsScreen(mock_root, correct_count=10, total=10)
+
+        label_calls = mock_label.call_args_list
+        score_call = [c for c in label_calls if "100%" in str(c)]
+        assert len(score_call) == 1
+
+
+class TestQuizCompletionFlow:
+    """Tests for the quiz completion flow - results screen + history saving."""
+
+    @patch('flashcards.controller.save_quiz_result')
+    @patch('flashcards.controller.QuizResultsScreen')
+    @patch('tkinter.Frame')
+    @patch('tkinter.Label')
+    @patch('tkinter.Button')
+    @patch('tkinter.Spinbox')
+    @patch('tkinter.IntVar')
+    def test_on_quiz_complete_saves_result(self, mock_intvar, mock_spinbox, mock_button,
+                                            mock_label, mock_frame, mock_results_screen,
+                                            mock_save, mock_root, sample_cards):
+        """Test that quiz completion saves result to history."""
+        mock_intvar_instance = MagicMock()
+        mock_intvar_instance.get.return_value = 10
+        mock_intvar.return_value = mock_intvar_instance
+        mock_frame.return_value = MagicMock()
+        mock_results_screen.return_value = MagicMock()
+
+        app = App(mock_root, sample_cards)
+        app._on_quiz_complete(correct=8, total=10)
+
+        mock_save.assert_called_once_with(10, 8)
+
+    @patch('flashcards.controller.save_quiz_result')
+    @patch('flashcards.controller.QuizResultsScreen')
+    @patch('tkinter.Frame')
+    @patch('tkinter.Label')
+    @patch('tkinter.Button')
+    @patch('tkinter.Spinbox')
+    @patch('tkinter.IntVar')
+    def test_on_quiz_complete_shows_results_screen(self, mock_intvar, mock_spinbox,
+                                                    mock_button, mock_label, mock_frame,
+                                                    mock_results_screen, mock_save,
+                                                    mock_root, sample_cards):
+        """Test that quiz completion shows results screen."""
+        mock_intvar_instance = MagicMock()
+        mock_intvar_instance.get.return_value = 10
+        mock_intvar.return_value = mock_intvar_instance
+        mock_frame.return_value = MagicMock()
+        mock_results_instance = MagicMock()
+        mock_results_screen.return_value = mock_results_instance
+
+        app = App(mock_root, sample_cards)
+        app._on_quiz_complete(correct=8, total=10)
+
+        mock_results_screen.assert_called_once()
+        mock_results_instance.show.assert_called_once()
+
+    @patch('flashcards.controller.save_quiz_result')
+    @patch('flashcards.controller.QuizResultsScreen')
+    @patch('tkinter.Frame')
+    @patch('tkinter.Label')
+    @patch('tkinter.Button')
+    @patch('tkinter.Spinbox')
+    @patch('tkinter.IntVar')
+    def test_on_quiz_complete_hides_flashcard_app(self, mock_intvar, mock_spinbox,
+                                                   mock_button, mock_label, mock_frame,
+                                                   mock_results_screen, mock_save,
+                                                   mock_root, sample_cards):
+        """Test that quiz completion hides the quiz app."""
+        mock_intvar_instance = MagicMock()
+        mock_intvar_instance.get.return_value = 10
+        mock_intvar.return_value = mock_intvar_instance
+        mock_frame.return_value = MagicMock()
+        mock_results_screen.return_value = MagicMock()
+
+        app = App(mock_root, sample_cards)
+        mock_flashcard = MagicMock()
+        app.flashcard_app = mock_flashcard
+
+        app._on_quiz_complete(correct=8, total=10)
+
+        mock_flashcard.hide.assert_called_once()
+        assert app.flashcard_app is None
+
+    @patch('flashcards.controller.save_quiz_result')
+    @patch('flashcards.controller.QuizResultsScreen')
+    @patch('tkinter.Frame')
+    @patch('tkinter.Label')
+    @patch('tkinter.Button')
+    @patch('tkinter.Spinbox')
+    @patch('tkinter.IntVar')
+    def test_back_to_menu_from_results(self, mock_intvar, mock_spinbox, mock_button,
+                                        mock_label, mock_frame, mock_results_screen,
+                                        mock_save, mock_root, sample_cards):
+        """Test returning to menu from results screen."""
+        mock_intvar_instance = MagicMock()
+        mock_intvar_instance.get.return_value = 10
+        mock_intvar.return_value = mock_intvar_instance
+        mock_frame_instance = MagicMock()
+        mock_frame.return_value = mock_frame_instance
+        mock_results_instance = MagicMock()
+        mock_results_screen.return_value = mock_results_instance
+
+        app = App(mock_root, sample_cards)
+        app._on_quiz_complete(correct=8, total=10)
+
+        app._back_to_menu_from_results()
+
+        mock_results_instance.hide.assert_called_once()
+        assert app.results_screen is None
+
+
+class TestScoreboardScreen:
+    """Tests for the ScoreboardScreen class."""
+
+    @patch('flashcards.screens.scoreboard.load_quiz_history')
+    @patch('tkinter.Frame')
+    @patch('tkinter.Label')
+    @patch('tkinter.Button')
+    def test_empty_state_shows_message(self, mock_button, mock_label, mock_frame,
+                                        mock_load_history):
+        """Test that empty history shows appropriate message."""
+        mock_load_history.return_value = []
+        mock_frame.return_value = MagicMock()
+        mock_label.return_value = MagicMock()
+        mock_button.return_value = MagicMock()
+
+        parent = MagicMock()
+        back_cb = MagicMock()
+
+        screen = ScoreboardScreen(parent, back_cb)
+
+        # Verify that Label was called with "No quiz history yet"
+        label_calls = [call for call in mock_label.call_args_list
+                       if call.kwargs.get('text') == 'No quiz history yet']
+        assert len(label_calls) == 1
+
+    @patch('flashcards.screens.scoreboard.load_quiz_history')
+    @patch('tkinter.ttk.Treeview')
+    @patch('tkinter.ttk.Scrollbar')
+    @patch('tkinter.ttk.Style')
+    @patch('tkinter.Frame')
+    @patch('tkinter.Label')
+    @patch('tkinter.Button')
+    def test_with_history_creates_table(self, mock_button, mock_label, mock_frame,
+                                         mock_style, mock_scrollbar, mock_treeview,
+                                         mock_load_history):
+        """Test that history data creates a table."""
+        mock_load_history.return_value = [
+            {"time": "2024-01-15T10:30:00", "total": 20, "correct": 15},
+            {"time": "2024-01-16T14:00:00", "total": 30, "correct": 28},
+        ]
+        mock_frame.return_value = MagicMock()
+        mock_label.return_value = MagicMock()
+        mock_button.return_value = MagicMock()
+        mock_style.return_value = MagicMock()
+        mock_scrollbar.return_value = MagicMock()
+        mock_tree_instance = MagicMock()
+        mock_treeview.return_value = mock_tree_instance
+
+        parent = MagicMock()
+        back_cb = MagicMock()
+
+        screen = ScoreboardScreen(parent, back_cb)
+
+        # Verify treeview was created with correct columns
+        mock_treeview.assert_called_once()
+        call_kwargs = mock_treeview.call_args.kwargs
+        assert "columns" in call_kwargs
+        assert call_kwargs["columns"] == ("datetime", "questions", "correct", "percentage")
+
+        # Verify rows were inserted (2 entries, inserted in reverse order)
+        assert mock_tree_instance.insert.call_count == 2
+
+    @patch('flashcards.screens.scoreboard.load_quiz_history')
+    @patch('tkinter.Frame')
+    @patch('tkinter.Label')
+    @patch('tkinter.Button')
+    def test_back_button_calls_callback(self, mock_button, mock_label, mock_frame,
+                                         mock_load_history):
+        """Test that back button is wired to callback."""
+        mock_load_history.return_value = []
+        mock_frame.return_value = MagicMock()
+        mock_label.return_value = MagicMock()
+        mock_button.return_value = MagicMock()
+
+        parent = MagicMock()
+        back_cb = MagicMock()
+
+        screen = ScoreboardScreen(parent, back_cb)
+
+        assert screen.back_to_menu == back_cb
+
+    @patch('flashcards.screens.scoreboard.load_quiz_history')
+    @patch('tkinter.Frame')
+    @patch('tkinter.Label')
+    @patch('tkinter.Button')
+    def test_show_hide(self, mock_button, mock_label, mock_frame, mock_load_history):
+        """Test show and hide methods."""
+        mock_load_history.return_value = []
+        mock_frame_instance = MagicMock()
+        mock_frame.return_value = mock_frame_instance
+        mock_label.return_value = MagicMock()
+        mock_button.return_value = MagicMock()
+
+        parent = MagicMock()
+        screen = ScoreboardScreen(parent, MagicMock())
+
+        screen.show()
+        mock_frame_instance.pack.assert_called()
+
+        screen.hide()
+        mock_frame_instance.pack_forget.assert_called()
 
 
 # =============================================================================

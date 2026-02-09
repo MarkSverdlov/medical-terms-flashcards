@@ -6,11 +6,12 @@ import tkinter as tk
 class MainMenu:
     """Main menu screen."""
 
-    def __init__(self, parent: tk.Frame, start_simple_mode: callable, start_inverted_mode: callable, start_quiz_mode: callable):
+    def __init__(self, parent: tk.Frame, start_simple_mode: callable, start_inverted_mode: callable, start_quiz_mode: callable, start_scoreboard_mode: callable):
         self.frame = tk.Frame(parent, bg="#2c3e50")
         self.start_simple_mode = start_simple_mode
         self.start_inverted_mode = start_inverted_mode
         self.start_quiz_mode = start_quiz_mode
+        self.start_scoreboard_mode = start_scoreboard_mode
         self._setup_ui()
 
     def _setup_ui(self):
@@ -87,6 +88,16 @@ class MainMenu:
             width=15,
         )
         quiz_mode_btn.pack(pady=5)
+
+        # Scoreboard button
+        scoreboard_btn = tk.Button(
+            self.frame,
+            text="Scoreboard",
+            font=("Helvetica", 14),
+            command=self.start_scoreboard_mode,
+            width=15,
+        )
+        scoreboard_btn.pack(pady=5)
 
     def get_card_count(self) -> int:
         """Return the selected number of cards."""
