@@ -29,7 +29,7 @@
 | pulmo | ריאה | |
 | pnea, pneumo- | נשימה/אוויר | pneumothorax = חזה אוויר |
 | gastro | קיבה, מע' עיכול | |
-| neuro | מע' העצבים | |
+| neuro | מע' העצבים (תחילית) | |
 | nephro | כליות | |
 | osteo | עצם | |
 | dys- | קושי, כאב | dyspnea = קשיי נשימה |
@@ -112,3 +112,52 @@ carido-pulmonary resuscitation
 | agonal respiration | תבנית נשימה אבנורמלית כתוצאה מרפלקס של brain stem, מעיד על היעדר פרפוזיה מוחית |
 | clinical death | מוות קליני, היעדר נשימה ולב | |
 | brain death | מוות מוחי, נזק בלתי הפיך למוח | 4-6 דקות לאחר מוות קליני | |
+| head tilt chin lift | תמרון שנועד לפתוח נתיב אוויר במטופל חסר הכרה | |
+
+
+semi-advanced resuscitation
+============================
+| term | interpretation | explanation |
+| ---- | -------------- | --- |
+| LUCAS | מעסה לב אוטומטי | Lund University Cardioplumonary Assist System |
+| airway | נתב אוויר | נכנס לכל חולה מחוסר הכרה אחרי מדידת הגודל |
+| epiglottis | מכסה הגרון | |
+| suction | שואב הפרשות | מפעילים אחרי הוצאת airway, אפשר להוציא airway עד פעמיים, אחרי זה לא מוציאים |
+| bag valve mask | אמבו | מכונת הנשמה ידנית, מניחים את המסיכה על החולה בשיטת C-E |
+
+neural system
+=============
+| term | interpretation | explanation |
+| ---- | -------------- | --- |
+| dendrite | דנדריט | הרכיב שקולט את האות החשמלית |
+| soma | סומה, גוף התא | |
+| axon | אקסון | הרכיב הארוך בנוירון |
+| neuron | נוירון, תא עצב | |
+| terminal | טרמינל | הרכיב שמשחרר את הנוירוטסנמיטר לאות חשמלי בסינפסות |
+| synapses | סינפסות | רכיב בין נוירונים שמעביר אותו חשמליים או נוירוטרנסמיטרים (תלוי בסוג) |
+| neurotransmitter | נוירוטרנסימטר | החומר שמעביר אינפורמציה בין הנוירונים בסינפסות |
+| spinal cord | חוט השדרה | |
+| systema nervosum | מערכת העצבים | |
+| systema nervosum centrale | מערכת העצבים המרכזית | כוללת את סרברום, סרבלום, brain stem ו-spinal cord |
+| arachnoidea mater | הקרום העכבישי | הקרום השני, מתחת לדורה ומעל ה-pia |
+| dura mater | הקרום הקשיח, צמוד ל-cranium | |
+| spatium epidurale | החלל מעל קרום הדורה | חלל פוטנציאלי שנוצר במקרה של פתולוגיה (בדר"כ דימום) |
+| spatium subdurale | חלל פוטנציאלי בין הדורה לארכנואידי | חלל פוטנציאלי שמתממש במקרה של פתולוגיה |
+| spatium subarachnoideum | חלל בין pia ל-arachnoidea mater | חלל בו נמצא ה-CSF |
+| cerebrospinal fluid | נוזל חוט ומוח השדרה (אנגלית) | נמצא ב-spatium subarachnoideum |
+| liquor cerebrospinalis | נוזל חוט ומוח השדרה (לטינית) | |
+| meninges | קרומי המוח | |
+| systema nervosum periphericum | מערכת העצבים ההיקפית | כוללת את כלל העצבים מלבד המוחות |
+| blood brain barrier | semipermeable border of the endothelium in brain capillaries | מגן על המוח מפני חומרים בדם |
+| cerebrum | המוח הגדול | |
+| cerebellum | המוח הקטן | |
+| brain stem | גזע המוח | |
+| somatic nervous system | מערכת העצבים הרצונית | חלק ממערכת העצבים הפריפריאלית |
+| autonomic nervous system | מערכת העצבים האוטונומית | חלק ממערכת העצבים הפריפריאלית |
+| sympathetic nervous system | מערכת העצבים הסימפטמטית | קשורה לפעילויות מע' העצבים האוטונומית בעת דחק |
+| parasympathetic nervous system | מערכת העצבים הפאראסימפטית | קשורה לפעיליות של מע' העצבים בעת רגיעה |
+| vagus nerve | העצב הראשי במערכת הפאראסימפטתית | |
+| noradrenaline | הנוירוטרנסמיטר העיקרי במערכת הסימפטתית | |
+| acetylcholine | הנוירוטרנסמיטר העיקרי במערכת הפאראסימפטתית | |
+| corpus collosum | כפיס המוח, מחבר בין שתי ההמיספרות | |
+| cortex | קליפת המוח | |
