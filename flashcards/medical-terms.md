@@ -161,3 +161,27 @@ neural system
 | acetylcholine | הנוירוטרנסמיטר העיקרי במערכת הפאראסימפטתית | |
 | corpus collosum | כפיס המוח, מחבר בין שתי ההמיספרות | |
 | cortex | קליפת המוח | |
+
+
+pulmonary system
+=================
+| term | interpretation |
+| ---- | ------------- |
+| sternum | העצם anterior ל-thorax |
+| ribs | צלעות |
+| trachea | קנה הנשימה |
+| bronchi | צינורות דרכי האוויר התחתונות, סימפונות |
+| alveolus | נאדיות הריאה, שם מתבצע שחלוף הגזים pulmonary circulation system |
+| saturation | אחוז ההמוגלובין שנושא חמצן בדם עורקי |
+| 40-60 | קצב נשימה של ילוד |
+| 20-30 | קצב נשימה של תינוק וגיל 3 |
+| 12-25 | קצב נשימה של גיל 8 |
+| 12-20 | קצב נשימה של מבוגר |
+| exhalation | נשיפה |
+| diaphragm | the main muscles that create inhalation in children |the
+| intercostal muscles | the main muscles that create inhalation in adults |
+| pleura | flattened sac around each lung |
+| visceral pleura | the pleura that covers the lung |
+| parietal pleura | the pleura that lines the chest wall |
+| cavitas pleuralis | the interpleural potential space where pleural fluid is |
+| aspiration | inhalation of liquid or solid stomach content to the respiratory system |
