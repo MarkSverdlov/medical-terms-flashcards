@@ -185,3 +185,34 @@ pulmonary system
 | parietal pleura | the pleura that lines the chest wall |
 | cavitas pleuralis | the interpleural potential space where pleural fluid is |
 | aspiration | inhalation of liquid or solid stomach content to the respiratory system |
+| apnea | מצב בו המטופל לא נושם |
+
+abodomen
+========
+abdomen is the largest cavity in the body. It has many different organs with different functionalities, both hollow and solid. Emergencies connected with the abdomen might emerge from both sickness and trauma, so knowledge of the anatomy and physiology of the abdomen is crucial. Many organs are multifunctionals, for example both the liver (hepat) and the pancreas are heterocrines, which means they are both endocrine and exocrine (for the digestive system).
+
+| term | interpretation |
+| ---- | -------------- |
+| abdomen | בטן |
+| abdominal cavity | החלל בין ה-thorax ל-pelvis |
+| vertebrates | העצמות שמגנות על חוט השדרה |
+| liver | right upper quadrent, solid, biochemical factory, secretes bile (English) |
+| hepat | right upper quadrent, solid, biochemical factory, secretes bile (Latin) |
+| galbladder | right upper quadrent, hollow, a storage for bile (English) |
+| vesica biliaris | right upper quadrent, hollow, a storage for bile (Latin) |
+| pancreas | from the left to the right upper quadrent, solid, exocrine glane that secretes juice to the duodenum |
+| spleen | left upper quadrent, solid, part of the lymphatic system, remove damages erythrocytes |
+| esophagus | a tube between the mouth to the stomach, behind the heart and trachea |
+| stomach | left upper quadrent, stores and digests food between the esophagus and duodenum (English) |
+| gaster | left upper quadrent, stores and digests food between the esophagus and duodenum (Latin) |
+| duodenum | right upper and bottom quadrents, the first section of the small intestine |
+| small intestine | bottom quadrents, 7 meter length tube, most of the volume of the abdomen, absorbs nutrients |
+| large intestine | Last part of the digestive system, absorbs fluids |
+| appendix | right bottom quadrent, between the small and large intensines, no clear functionality |
+| kidney | both right and left upper quadrent, behind the small intensine, filters blood and create urine, behind the peritoneum. (English) |
+| ren | both right and left upper quadrent, behind the small intensine, filters blood and create urine, behind the perioneum. (Latin) |
+| ureter | a tube between the ren to the bladder |
+| bladder | a hollow organ the stores urine |
+| peritoneum | a sac that holds most of the abdominal organs, beside the kidneys and bladders |
+| inferior vena cava | the vein that returns deoxygenated blood from the abdomen to the heart |
+| abdominal aorta | the artery that supplies blood to the lower part of the body |
