@@ -94,3 +94,16 @@ class BaseCardApp(ABC):
     def hide(self):
         """Hide the screen."""
         self.frame.pack_forget()
+
+    def _apply_dynamic_text_size(self, label: tk.Label, text: str, is_rtl: bool = True):
+        """Apply dynamic font size and wrapping to a label."""
+        from .utils import calculate_font_size, fix_rtl
+
+        sizing = calculate_font_size(text)
+        display_text = fix_rtl(text, sizing['wrap_chars']) if is_rtl else text
+
+        label.config(
+            text=display_text,
+            font=("Helvetica", sizing['font_size'], "bold"),
+            wraplength=sizing['wraplength']
+        )

@@ -6,11 +6,27 @@ from bidi import get_display
 import textwrap
 
 
-def fix_rtl(text: str) -> str:
+def fix_rtl(text: str, wrap_width: int = 25) -> str:
     """Fix right-to-left text display by wrapping and applying bidi algorithm."""
     # We do the wrapping manually outside of tkinter to handle peculiarities since the text is RTL
-    lines = textwrap.wrap(text, width=25)
+    lines = textwrap.wrap(text, width=wrap_width)
     return "\n".join([get_display(line) for line in lines])
+
+
+def calculate_font_size(text: str) -> dict:
+    """Calculate font size and wrap settings based on text length."""
+    text_len = len(text.replace('\n', ''))
+
+    if text_len <= 30:
+        return {'font_size': 22, 'wrap_chars': 25, 'wraplength': 500}
+    elif text_len <= 60:
+        return {'font_size': 18, 'wrap_chars': 30, 'wraplength': 450}
+    elif text_len <= 100:
+        return {'font_size': 16, 'wrap_chars': 35, 'wraplength': 420}
+    elif text_len <= 150:
+        return {'font_size': 14, 'wrap_chars': 40, 'wraplength': 400}
+    else:
+        return {'font_size': 12, 'wrap_chars': 45, 'wraplength': 380}
 
 
 def parse_markdown_tables(filepath: str) -> list[dict]:

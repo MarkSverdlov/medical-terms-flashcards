@@ -4,7 +4,6 @@ import random
 import tkinter as tk
 
 from ..base import BaseCardApp
-from ..utils import fix_rtl
 
 
 class FlashCardApp(BaseCardApp):
@@ -113,25 +112,31 @@ class FlashCardApp(BaseCardApp):
 
         if self.mode == "simple":
             front_text = card["term"]
-            back_text = fix_rtl(card["interpretation"])
+            back_text = card["interpretation"]
             if card["extra"]:
-                back_text += f"\n\n({fix_rtl(card['extra'])})"
+                back_text += f"\n\n({card['extra']})"
             front_hint = "(click to flip)"
             back_hint = "(click to see term)"
+            front_is_rtl = False
+            back_is_rtl = True
         else:  # inverted mode
-            front_text = fix_rtl(card["interpretation"])
-            back_text = fix_rtl(card["term"])
+            front_text = card["interpretation"]
+            back_text = card["term"]
             front_hint = "(click to flip)"
             back_hint = "(click to see interpretation)"
+            front_is_rtl = True
+            back_is_rtl = False
 
         if self.is_flipped:
-            self.term_label.config(text=back_text, fg="#27ae60")
+            self._apply_dynamic_text_size(self.term_label, back_text, is_rtl=back_is_rtl)
+            self.term_label.config(fg="#27ae60")
             self.hint_label.config(text=back_hint)
             self.card_frame.config(bg="#d5f5e3")
             self.term_label.config(bg="#d5f5e3")
             self.hint_label.config(bg="#d5f5e3")
         else:
-            self.term_label.config(text=front_text, fg="#2c3e50")
+            self._apply_dynamic_text_size(self.term_label, front_text, is_rtl=front_is_rtl)
+            self.term_label.config(fg="#2c3e50")
             self.hint_label.config(text=front_hint)
             self.card_frame.config(bg="#ecf0f1")
             self.term_label.config(bg="#ecf0f1")

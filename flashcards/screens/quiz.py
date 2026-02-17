@@ -3,7 +3,6 @@
 import tkinter as tk
 
 from ..base import BaseCardApp
-from ..utils import fix_rtl
 
 
 class QuizCardApp(BaseCardApp):
@@ -117,7 +116,7 @@ class QuizCardApp(BaseCardApp):
             return
 
         card = self.cards[self.current_index]
-        self.interpretation_label.config(text=fix_rtl(card["interpretation"]))
+        self._apply_dynamic_text_size(self.interpretation_label, card["interpretation"], is_rtl=True)
 
         # Clear input and result
         self.entry.delete(0, tk.END)
