@@ -18,9 +18,9 @@ def main():
         return
 
     # Parse cards
-    cards = parse_markdown_tables(str(md_file))
+    cards, sections = parse_markdown_tables(str(md_file))
 
     # Create and run the app
     root = tk.Tk()
-    app = App(root, cards)
+    app = App(root, cards, sections)
     root.mainloop()

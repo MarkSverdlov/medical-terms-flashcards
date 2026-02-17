@@ -10,16 +10,24 @@ from .history import save_quiz_result
 class App:
     """Main application managing screens."""
 
-    def __init__(self, root: tk.Tk, cards: list[dict]):
+    def __init__(self, root: tk.Tk, cards: list[dict], sections: list[str] = None):
         self.root = root
         self.cards = cards
+        self.sections = sections or []
 
         self.root.title("Flash Card Game - Medical Terminology")
         self.root.geometry("600x400")
         self.root.configure(bg="#2c3e50")
 
+        # Calculate section counts (filter out empty sections)
+        section_counts = {}
+        for card in self.cards:
+            section = card.get("section")
+            if section:
+                section_counts[section] = section_counts.get(section, 0) + 1
+
         # Create screens
-        self.main_menu = MainMenu(self.root, self._start_simple_mode, self._start_inverted_mode, self._start_quiz_mode, self._start_scoreboard_mode)
+        self.main_menu = MainMenu(self.root, self._start_simple_mode, self._start_inverted_mode, self._start_quiz_mode, self._start_scoreboard_mode, section_counts)
         self.flashcard_app = None
         self.results_screen = None
         self.scoreboard_screen = None
@@ -29,8 +37,12 @@ class App:
 
     def _prepare_mode_cards(self) -> list[dict]:
         """Prepare a shuffled deck of cards for a mode."""
+        selected = self.main_menu.get_selected_sections()
+        filtered = [c for c in self.cards if c.get("section") in selected]
+        if not filtered:
+            filtered = self.cards  # fallback if none selected
         card_count = self.main_menu.get_card_count()
-        mode_cards = random.choices(self.cards, k=card_count)
+        mode_cards = random.choices(filtered, k=card_count)
         random.shuffle(mode_cards)
         return mode_cards
 

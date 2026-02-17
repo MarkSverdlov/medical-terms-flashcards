@@ -31,9 +31,9 @@ from flashcards.app import (
 def sample_cards():
     """Provide sample card data for testing."""
     return [
-        {"term": "hypertension", "interpretation": "יתר לחץ דם", "extra": "HTN"},
-        {"term": "bradycardia", "interpretation": "דופק איטי", "extra": ""},
-        {"term": "CPR", "interpretation": "החייאת לב ריאה", "extra": "cardiopulmonary resuscitation"},
+        {"term": "hypertension", "interpretation": "יתר לחץ דם", "extra": "HTN", "section": "General"},
+        {"term": "bradycardia", "interpretation": "דופק איטי", "extra": "", "section": "General"},
+        {"term": "CPR", "interpretation": "החייאת לב ריאה", "extra": "cardiopulmonary resuscitation", "section": "General"},
     ]
 
 
@@ -75,15 +75,17 @@ class TestParseMarkdownTables:
         md_file = tmp_path / "test.md"
         md_file.write_text(md_content, encoding="utf-8")
 
-        cards = parse_markdown_tables(str(md_file))
+        cards, sections = parse_markdown_tables(str(md_file))
 
         assert len(cards) == 2
         assert cards[0]["term"] == "hypertension"
         assert cards[0]["interpretation"] == "יתר לחץ דם"
         assert cards[0]["extra"] == "HTN"
+        assert cards[0]["section"] == "General"
         assert cards[1]["term"] == "bradycardia"
         assert cards[1]["interpretation"] == "דופק איטי"
         assert cards[1]["extra"] == ""
+        assert sections == ["General"]
 
     def test_parse_multiple_tables(self, tmp_path):
         """Test parsing multiple tables in one file."""
@@ -100,13 +102,14 @@ Some text between tables
         md_file = tmp_path / "test.md"
         md_file.write_text(md_content, encoding="utf-8")
 
-        cards = parse_markdown_tables(str(md_file))
+        cards, sections = parse_markdown_tables(str(md_file))
 
         assert len(cards) == 2
         assert cards[0]["term"] == "term1"
         assert cards[0]["extra"] == ""
         assert cards[1]["term"] == "term2"
         assert cards[1]["extra"] == "extra2"
+        assert sections == ["General"]
 
     def test_parse_table_with_two_columns(self, tmp_path):
         """Test parsing table with only two columns (no extra)."""
@@ -118,7 +121,7 @@ Some text between tables
         md_file = tmp_path / "test.md"
         md_file.write_text(md_content, encoding="utf-8")
 
-        cards = parse_markdown_tables(str(md_file))
+        cards, sections = parse_markdown_tables(str(md_file))
 
         assert len(cards) == 2
         assert cards[0]["term"] == "IV"
@@ -130,9 +133,10 @@ Some text between tables
         md_file = tmp_path / "empty.md"
         md_file.write_text("", encoding="utf-8")
 
-        cards = parse_markdown_tables(str(md_file))
+        cards, sections = parse_markdown_tables(str(md_file))
 
         assert cards == []
+        assert sections == []
 
     def test_parse_file_with_no_tables(self, tmp_path):
         """Test parsing a file with no tables."""
@@ -145,9 +149,10 @@ Another paragraph.
         md_file = tmp_path / "no_tables.md"
         md_file.write_text(md_content, encoding="utf-8")
 
-        cards = parse_markdown_tables(str(md_file))
+        cards, sections = parse_markdown_tables(str(md_file))
 
         assert cards == []
+        assert sections == []
 
     def test_parse_table_skips_incomplete_rows(self, tmp_path):
         """Test that rows with less than 2 columns are skipped."""
@@ -160,7 +165,7 @@ Another paragraph.
         md_file = tmp_path / "test.md"
         md_file.write_text(md_content, encoding="utf-8")
 
-        cards = parse_markdown_tables(str(md_file))
+        cards, sections = parse_markdown_tables(str(md_file))
 
         # The incomplete row should be skipped
         assert len(cards) == 2
@@ -176,7 +181,7 @@ Another paragraph.
         md_file = tmp_path / "test.md"
         md_file.write_text(md_content, encoding="utf-8")
 
-        cards = parse_markdown_tables(str(md_file))
+        cards, sections = parse_markdown_tables(str(md_file))
 
         assert len(cards) == 1
         assert cards[0]["term"] == "spaced_term"
@@ -192,7 +197,7 @@ Another paragraph.
         md_file = tmp_path / "test.md"
         md_file.write_text(md_content, encoding="utf-8")
 
-        cards = parse_markdown_tables(str(md_file))
+        cards, sections = parse_markdown_tables(str(md_file))
 
         assert len(cards) == 2
         assert cards[0]["term"] == "ecto-, exo-"
@@ -207,9 +212,38 @@ Another paragraph.
         md_file = tmp_path / "test.md"
         md_file.write_text(md_content, encoding="utf-8")
 
-        cards = parse_markdown_tables(str(md_file))
+        cards, sections = parse_markdown_tables(str(md_file))
 
         assert cards[0]["interpretation"] == "תורת מבנה הגוף ואיבריו"
+
+    def test_parse_sections(self, tmp_path):
+        """Test parsing sections from markdown file."""
+        md_content = """| Term | Interpretation |
+| ---- | -------------- |
+| term1 | interp1 |
+
+Section One
+===========
+| Term | Interpretation |
+| ---- | -------------- |
+| term2 | interp2 |
+
+Section Two
+===========
+| Term | Interpretation |
+| ---- | -------------- |
+| term3 | interp3 |
+"""
+        md_file = tmp_path / "test.md"
+        md_file.write_text(md_content, encoding="utf-8")
+
+        cards, sections = parse_markdown_tables(str(md_file))
+
+        assert len(cards) == 3
+        assert sections == ["General", "Section One", "Section Two"]
+        assert cards[0]["section"] == "General"
+        assert cards[1]["section"] == "Section One"
+        assert cards[2]["section"] == "Section Two"
 
 
 # =============================================================================
@@ -314,6 +348,68 @@ class TestMainMenu:
         menu = MainMenu(parent, MagicMock(), MagicMock(), MagicMock(), MagicMock())
 
         assert menu.get_card_count() == 250
+
+    @patch('tkinter.Frame')
+    @patch('tkinter.Label')
+    @patch('tkinter.Button')
+    @patch('tkinter.Spinbox')
+    @patch('tkinter.IntVar')
+    @patch('tkinter.BooleanVar')
+    @patch('tkinter.Canvas')
+    @patch('tkinter.Scrollbar')
+    @patch('tkinter.Checkbutton')
+    def test_sections_initialization(self, mock_checkbutton, mock_scrollbar, mock_canvas,
+                                     mock_boolvar, mock_intvar, mock_spinbox, mock_button,
+                                     mock_label, mock_frame):
+        """Test MainMenu initialization with sections."""
+        mock_intvar.return_value = MagicMock()
+        mock_boolvar_instance = MagicMock()
+        mock_boolvar_instance.get.return_value = True
+        mock_boolvar.return_value = mock_boolvar_instance
+        mock_canvas_instance = MagicMock()
+        mock_canvas.return_value = mock_canvas_instance
+
+        parent = MagicMock()
+        section_counts = {"General": 10, "Section1": 5, "Section2": 8}
+        menu = MainMenu(parent, MagicMock(), MagicMock(), MagicMock(), MagicMock(), section_counts=section_counts)
+
+        assert menu.section_counts == section_counts
+        assert len(menu.section_vars) == 3
+        # All sections should be checked by default
+        assert menu.get_selected_sections() == {"General", "Section1", "Section2"}
+
+    @patch('tkinter.Frame')
+    @patch('tkinter.Label')
+    @patch('tkinter.Button')
+    @patch('tkinter.Spinbox')
+    @patch('tkinter.IntVar')
+    @patch('tkinter.BooleanVar')
+    @patch('tkinter.Canvas')
+    @patch('tkinter.Scrollbar')
+    @patch('tkinter.Checkbutton')
+    def test_check_all_uncheck_all(self, mock_checkbutton, mock_scrollbar, mock_canvas,
+                                   mock_boolvar, mock_intvar, mock_spinbox, mock_button,
+                                   mock_label, mock_frame):
+        """Test check all and uncheck all methods."""
+        mock_intvar.return_value = MagicMock()
+        mock_boolvar_instance = MagicMock()
+        mock_boolvar_instance.get.return_value = True
+        mock_boolvar.return_value = mock_boolvar_instance
+        mock_canvas.return_value = MagicMock()
+
+        parent = MagicMock()
+        section_counts = {"General": 10, "Section1": 5}
+        menu = MainMenu(parent, MagicMock(), MagicMock(), MagicMock(), MagicMock(), section_counts=section_counts)
+
+        # Test uncheck all
+        menu._uncheck_all()
+        for var in menu.section_vars.values():
+            var.set.assert_called_with(False)
+
+        # Test check all
+        menu._check_all()
+        for var in menu.section_vars.values():
+            var.set.assert_called_with(True)
 
     @patch('tkinter.Frame')
     @patch('tkinter.Label')
@@ -943,7 +1039,12 @@ class TestQuizCompletionFlow:
     @patch('tkinter.Button')
     @patch('tkinter.Spinbox')
     @patch('tkinter.IntVar')
-    def test_on_quiz_complete_saves_result(self, mock_intvar, mock_spinbox, mock_button,
+    @patch('tkinter.BooleanVar')
+    @patch('tkinter.Canvas')
+    @patch('tkinter.Scrollbar')
+    @patch('tkinter.Checkbutton')
+    def test_on_quiz_complete_saves_result(self, mock_checkbutton, mock_scrollbar, mock_canvas,
+                                            mock_boolvar, mock_intvar, mock_spinbox, mock_button,
                                             mock_label, mock_frame, mock_results_screen,
                                             mock_save, mock_root, sample_cards):
         """Test that quiz completion saves result to history."""
@@ -951,6 +1052,8 @@ class TestQuizCompletionFlow:
         mock_intvar_instance.get.return_value = 10
         mock_intvar.return_value = mock_intvar_instance
         mock_frame.return_value = MagicMock()
+        mock_canvas.return_value = MagicMock()
+        mock_boolvar.return_value = MagicMock()
         mock_results_screen.return_value = MagicMock()
 
         app = App(mock_root, sample_cards)
@@ -965,15 +1068,22 @@ class TestQuizCompletionFlow:
     @patch('tkinter.Button')
     @patch('tkinter.Spinbox')
     @patch('tkinter.IntVar')
-    def test_on_quiz_complete_shows_results_screen(self, mock_intvar, mock_spinbox,
-                                                    mock_button, mock_label, mock_frame,
-                                                    mock_results_screen, mock_save,
+    @patch('tkinter.BooleanVar')
+    @patch('tkinter.Canvas')
+    @patch('tkinter.Scrollbar')
+    @patch('tkinter.Checkbutton')
+    def test_on_quiz_complete_shows_results_screen(self, mock_checkbutton, mock_scrollbar,
+                                                    mock_canvas, mock_boolvar, mock_intvar,
+                                                    mock_spinbox, mock_button, mock_label,
+                                                    mock_frame, mock_results_screen, mock_save,
                                                     mock_root, sample_cards):
         """Test that quiz completion shows results screen."""
         mock_intvar_instance = MagicMock()
         mock_intvar_instance.get.return_value = 10
         mock_intvar.return_value = mock_intvar_instance
         mock_frame.return_value = MagicMock()
+        mock_canvas.return_value = MagicMock()
+        mock_boolvar.return_value = MagicMock()
         mock_results_instance = MagicMock()
         mock_results_screen.return_value = mock_results_instance
 
@@ -990,15 +1100,22 @@ class TestQuizCompletionFlow:
     @patch('tkinter.Button')
     @patch('tkinter.Spinbox')
     @patch('tkinter.IntVar')
-    def test_on_quiz_complete_hides_flashcard_app(self, mock_intvar, mock_spinbox,
-                                                   mock_button, mock_label, mock_frame,
-                                                   mock_results_screen, mock_save,
+    @patch('tkinter.BooleanVar')
+    @patch('tkinter.Canvas')
+    @patch('tkinter.Scrollbar')
+    @patch('tkinter.Checkbutton')
+    def test_on_quiz_complete_hides_flashcard_app(self, mock_checkbutton, mock_scrollbar,
+                                                   mock_canvas, mock_boolvar, mock_intvar,
+                                                   mock_spinbox, mock_button, mock_label,
+                                                   mock_frame, mock_results_screen, mock_save,
                                                    mock_root, sample_cards):
         """Test that quiz completion hides the quiz app."""
         mock_intvar_instance = MagicMock()
         mock_intvar_instance.get.return_value = 10
         mock_intvar.return_value = mock_intvar_instance
         mock_frame.return_value = MagicMock()
+        mock_canvas.return_value = MagicMock()
+        mock_boolvar.return_value = MagicMock()
         mock_results_screen.return_value = MagicMock()
 
         app = App(mock_root, sample_cards)
@@ -1017,7 +1134,12 @@ class TestQuizCompletionFlow:
     @patch('tkinter.Button')
     @patch('tkinter.Spinbox')
     @patch('tkinter.IntVar')
-    def test_back_to_menu_from_results(self, mock_intvar, mock_spinbox, mock_button,
+    @patch('tkinter.BooleanVar')
+    @patch('tkinter.Canvas')
+    @patch('tkinter.Scrollbar')
+    @patch('tkinter.Checkbutton')
+    def test_back_to_menu_from_results(self, mock_checkbutton, mock_scrollbar, mock_canvas,
+                                        mock_boolvar, mock_intvar, mock_spinbox, mock_button,
                                         mock_label, mock_frame, mock_results_screen,
                                         mock_save, mock_root, sample_cards):
         """Test returning to menu from results screen."""
@@ -1026,6 +1148,8 @@ class TestQuizCompletionFlow:
         mock_intvar.return_value = mock_intvar_instance
         mock_frame_instance = MagicMock()
         mock_frame.return_value = mock_frame_instance
+        mock_canvas.return_value = MagicMock()
+        mock_boolvar.return_value = MagicMock()
         mock_results_instance = MagicMock()
         mock_results_screen.return_value = mock_results_instance
 
@@ -1153,13 +1277,20 @@ class TestApp:
     @patch('tkinter.Button')
     @patch('tkinter.Spinbox')
     @patch('tkinter.IntVar')
-    def test_initialization(self, mock_intvar, mock_spinbox, mock_button,
+    @patch('tkinter.BooleanVar')
+    @patch('tkinter.Canvas')
+    @patch('tkinter.Scrollbar')
+    @patch('tkinter.Checkbutton')
+    def test_initialization(self, mock_checkbutton, mock_scrollbar, mock_canvas,
+                            mock_boolvar, mock_intvar, mock_spinbox, mock_button,
                             mock_label, mock_frame, mock_root, sample_cards):
         """Test App initialization."""
         mock_intvar_instance = MagicMock()
         mock_intvar_instance.get.return_value = 100
         mock_intvar.return_value = mock_intvar_instance
         mock_frame.return_value = MagicMock()
+        mock_canvas.return_value = MagicMock()
+        mock_boolvar.return_value = MagicMock()
 
         app = App(mock_root, sample_cards)
 
@@ -1174,9 +1305,14 @@ class TestApp:
     @patch('tkinter.Button')
     @patch('tkinter.Spinbox')
     @patch('tkinter.IntVar')
+    @patch('tkinter.BooleanVar')
+    @patch('tkinter.Canvas')
+    @patch('tkinter.Scrollbar')
+    @patch('tkinter.Checkbutton')
     @patch('random.choices')
     @patch('random.shuffle')
-    def test_start_simple_mode(self, mock_shuffle, mock_choices, mock_intvar,
+    def test_start_simple_mode(self, mock_shuffle, mock_choices, mock_checkbutton,
+                                mock_scrollbar, mock_canvas, mock_boolvar, mock_intvar,
                                 mock_spinbox, mock_button, mock_label, mock_frame,
                                 mock_flashcard_app, mock_root, sample_cards):
         """Test starting simple mode."""
@@ -1184,11 +1320,16 @@ class TestApp:
         mock_intvar_instance.get.return_value = 50
         mock_intvar.return_value = mock_intvar_instance
         mock_frame.return_value = MagicMock()
+        mock_canvas.return_value = MagicMock()
+        mock_boolvar.return_value = MagicMock()
         mock_choices.return_value = sample_cards
 
         app = App(mock_root, sample_cards)
+        # Mock get_selected_sections to return the section in sample_cards
+        app.main_menu.get_selected_sections = MagicMock(return_value={"General"})
         app._start_simple_mode()
 
+        # random.choices samples with replacement, so k equals the requested card_count
         mock_choices.assert_called_with(sample_cards, k=50)
         mock_shuffle.assert_called()
 
@@ -1198,9 +1339,14 @@ class TestApp:
     @patch('tkinter.Button')
     @patch('tkinter.Spinbox')
     @patch('tkinter.IntVar')
+    @patch('tkinter.BooleanVar')
+    @patch('tkinter.Canvas')
+    @patch('tkinter.Scrollbar')
+    @patch('tkinter.Checkbutton')
     @patch('random.choices')
     @patch('random.shuffle')
-    def test_start_inverted_mode(self, mock_shuffle, mock_choices, mock_intvar,
+    def test_start_inverted_mode(self, mock_shuffle, mock_choices, mock_checkbutton,
+                                  mock_scrollbar, mock_canvas, mock_boolvar, mock_intvar,
                                   mock_spinbox, mock_button, mock_label, mock_frame,
                                   mock_flashcard_app, mock_root, sample_cards):
         """Test starting inverted mode."""
@@ -1208,11 +1354,16 @@ class TestApp:
         mock_intvar_instance.get.return_value = 75
         mock_intvar.return_value = mock_intvar_instance
         mock_frame.return_value = MagicMock()
+        mock_canvas.return_value = MagicMock()
+        mock_boolvar.return_value = MagicMock()
         mock_choices.return_value = sample_cards
 
         app = App(mock_root, sample_cards)
+        # Mock get_selected_sections to return the section in sample_cards
+        app.main_menu.get_selected_sections = MagicMock(return_value={"General"})
         app._start_inverted_mode()
 
+        # random.choices samples with replacement, so k equals the requested card_count
         mock_choices.assert_called_with(sample_cards, k=75)
 
     @patch('flashcards.app.QuizCardApp')
@@ -1221,20 +1372,31 @@ class TestApp:
     @patch('tkinter.Button')
     @patch('tkinter.Spinbox')
     @patch('tkinter.IntVar')
+    @patch('tkinter.BooleanVar')
+    @patch('tkinter.Canvas')
+    @patch('tkinter.Scrollbar')
+    @patch('tkinter.Checkbutton')
     @patch('random.choices')
-    def test_start_quiz_mode(self, mock_choices, mock_intvar, mock_spinbox,
-                              mock_button, mock_label, mock_frame,
+    @patch('random.shuffle')
+    def test_start_quiz_mode(self, mock_shuffle, mock_choices, mock_checkbutton,
+                              mock_scrollbar, mock_canvas, mock_boolvar, mock_intvar,
+                              mock_spinbox, mock_button, mock_label, mock_frame,
                               mock_quiz_app, mock_root, sample_cards):
         """Test starting quiz mode."""
         mock_intvar_instance = MagicMock()
         mock_intvar_instance.get.return_value = 100
         mock_intvar.return_value = mock_intvar_instance
         mock_frame.return_value = MagicMock()
+        mock_canvas.return_value = MagicMock()
+        mock_boolvar.return_value = MagicMock()
         mock_choices.return_value = sample_cards
 
         app = App(mock_root, sample_cards)
+        # Mock get_selected_sections to return the section in sample_cards
+        app.main_menu.get_selected_sections = MagicMock(return_value={"General"})
         app._start_quiz_mode()
 
+        # random.choices samples with replacement, so k equals the requested card_count
         mock_choices.assert_called_with(sample_cards, k=100)
 
     @patch('tkinter.Frame')
@@ -1242,7 +1404,12 @@ class TestApp:
     @patch('tkinter.Button')
     @patch('tkinter.Spinbox')
     @patch('tkinter.IntVar')
-    def test_back_to_menu(self, mock_intvar, mock_spinbox, mock_button,
+    @patch('tkinter.BooleanVar')
+    @patch('tkinter.Canvas')
+    @patch('tkinter.Scrollbar')
+    @patch('tkinter.Checkbutton')
+    def test_back_to_menu(self, mock_checkbutton, mock_scrollbar, mock_canvas,
+                          mock_boolvar, mock_intvar, mock_spinbox, mock_button,
                           mock_label, mock_frame, mock_root, sample_cards):
         """Test returning to main menu."""
         mock_intvar_instance = MagicMock()
@@ -1250,6 +1417,8 @@ class TestApp:
         mock_intvar.return_value = mock_intvar_instance
         mock_frame_instance = MagicMock()
         mock_frame.return_value = mock_frame_instance
+        mock_canvas.return_value = MagicMock()
+        mock_boolvar.return_value = MagicMock()
 
         app = App(mock_root, sample_cards)
 
@@ -1276,17 +1445,20 @@ class TestIntegration:
         md_file = script_dir / "medical-terms.md"
 
         if md_file.exists():
-            cards = parse_markdown_tables(str(md_file))
+            cards, sections = parse_markdown_tables(str(md_file))
             assert len(cards) > 0
+            assert len(sections) > 0
 
             # Verify card structure
             for card in cards:
                 assert "term" in card
                 assert "interpretation" in card
                 assert "extra" in card
+                assert "section" in card
                 assert isinstance(card["term"], str)
                 assert isinstance(card["interpretation"], str)
                 assert isinstance(card["extra"], str)
+                assert isinstance(card["section"], str)
 
     def test_card_data_integrity(self):
         """Test that all cards have required fields."""
@@ -1294,11 +1466,12 @@ class TestIntegration:
         md_file = script_dir / "medical-terms.md"
 
         if md_file.exists():
-            cards = parse_markdown_tables(str(md_file))
+            cards, sections = parse_markdown_tables(str(md_file))
 
             for i, card in enumerate(cards):
                 assert card["term"], f"Card {i} has empty term"
                 assert card["interpretation"], f"Card {i} has empty interpretation"
+                assert card["section"], f"Card {i} has empty section"
 
     def test_rtl_with_real_hebrew_text(self):
         """Test RTL function with real Hebrew medical terms."""
@@ -1331,7 +1504,7 @@ class TestEdgeCases:
         md_file = tmp_path / "single.md"
         md_file.write_text(md_content, encoding="utf-8")
 
-        cards = parse_markdown_tables(str(md_file))
+        cards, sections = parse_markdown_tables(str(md_file))
         assert len(cards) == 1
 
     def test_very_long_term(self, tmp_path):
@@ -1344,7 +1517,7 @@ class TestEdgeCases:
         md_file = tmp_path / "long.md"
         md_file.write_text(md_content, encoding="utf-8")
 
-        cards = parse_markdown_tables(str(md_file))
+        cards, sections = parse_markdown_tables(str(md_file))
         assert len(cards) == 1
         assert len(cards[0]["term"]) == 200
 
@@ -1359,7 +1532,7 @@ class TestEdgeCases:
         md_file = tmp_path / "unicode.md"
         md_file.write_text(md_content, encoding="utf-8")
 
-        cards = parse_markdown_tables(str(md_file))
+        cards, sections = parse_markdown_tables(str(md_file))
         assert len(cards) == 3
         assert cards[0]["term"] == "café"
 
@@ -1372,7 +1545,7 @@ class TestEdgeCases:
         md_file = tmp_path / "headers.md"
         md_file.write_text(md_content, encoding="utf-8")
 
-        cards = parse_markdown_tables(str(md_file))
+        cards, sections = parse_markdown_tables(str(md_file))
         assert len(cards) == 1
         # Parser doesn't care about header names, just position
 
@@ -1401,7 +1574,7 @@ Conclusion text.
         md_file = tmp_path / "mixed.md"
         md_file.write_text(md_content, encoding="utf-8")
 
-        cards = parse_markdown_tables(str(md_file))
+        cards, sections = parse_markdown_tables(str(md_file))
         assert len(cards) == 2
 
 
@@ -1423,7 +1596,7 @@ class TestPerformance:
         md_file = tmp_path / "large.md"
         md_file.write_text(md_content, encoding="utf-8")
 
-        cards = parse_markdown_tables(str(md_file))
+        cards, sections = parse_markdown_tables(str(md_file))
         assert len(cards) == 1000
 
     def test_fix_rtl_performance_with_long_text(self):

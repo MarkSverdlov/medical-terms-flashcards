@@ -2,16 +2,20 @@
 
 import tkinter as tk
 
+from ..utils import fix_rtl
+
 
 class MainMenu:
     """Main menu screen."""
 
-    def __init__(self, parent: tk.Frame, start_simple_mode: callable, start_inverted_mode: callable, start_quiz_mode: callable, start_scoreboard_mode: callable):
+    def __init__(self, parent: tk.Frame, start_simple_mode: callable, start_inverted_mode: callable, start_quiz_mode: callable, start_scoreboard_mode: callable, section_counts: dict[str, int] = None):
         self.frame = tk.Frame(parent, bg="#2c3e50")
         self.start_simple_mode = start_simple_mode
         self.start_inverted_mode = start_inverted_mode
         self.start_quiz_mode = start_quiz_mode
         self.start_scoreboard_mode = start_scoreboard_mode
+        self.section_counts = section_counts or {}
+        self.section_vars: dict[str, tk.BooleanVar] = {}
         self._setup_ui()
 
     def _setup_ui(self):
@@ -24,7 +28,7 @@ class MainMenu:
             fg="white",
             bg="#2c3e50",
         )
-        title_label.pack(pady=(20, 5))
+        title_label.pack(pady=(10, 2))
 
         # Subtitle
         subtitle_label = tk.Label(
@@ -34,7 +38,7 @@ class MainMenu:
             fg="#bdc3c7",
             bg="#2c3e50",
         )
-        subtitle_label.pack(pady=(0, 10))
+        subtitle_label.pack(pady=(0, 5))
 
         # Card count configuration
         config_frame = tk.Frame(self.frame, bg="#2c3e50")
@@ -59,49 +63,131 @@ class MainMenu:
         )
         self.card_count_spinbox.pack(side="left", padx=10)
 
-        # Simple Mode button
+        # Sections label
+        if self.section_counts:
+            sections_label = tk.Label(
+                self.frame,
+                text="Sections:",
+                font=("Helvetica", 12),
+                fg="white",
+                bg="#2c3e50",
+            )
+            sections_label.pack(pady=(5, 2))
+
+            # Check All / Uncheck All buttons
+            btn_frame = tk.Frame(self.frame, bg="#2c3e50")
+            btn_frame.pack(pady=2)
+
+            tk.Button(
+                btn_frame,
+                text="Check All",
+                font=("Helvetica", 10),
+                command=self._check_all,
+                width=10,
+            ).pack(side="left", padx=5)
+
+            tk.Button(
+                btn_frame,
+                text="Uncheck All",
+                font=("Helvetica", 10),
+                command=self._uncheck_all,
+                width=10,
+            ).pack(side="left", padx=5)
+
+            # Scrollable frame for section checkboxes
+            canvas_frame = tk.Frame(self.frame, bg="#2c3e50")
+            canvas_frame.pack(pady=2, fill=tk.X, padx=20)
+
+            canvas = tk.Canvas(canvas_frame, bg="#2c3e50", height=70, highlightthickness=0)
+            scrollbar = tk.Scrollbar(canvas_frame, orient="vertical", command=canvas.yview)
+            scrollable_frame = tk.Frame(canvas, bg="#2c3e50")
+
+            scrollable_frame.bind(
+                "<Configure>",
+                lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+            )
+
+            canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+            canvas.configure(yscrollcommand=scrollbar.set)
+
+            canvas.pack(side="left", fill=tk.BOTH, expand=True)
+            scrollbar.pack(side="right", fill="y")
+
+            # Create checkbox for each section
+            for section, count in self.section_counts.items():
+                var = tk.BooleanVar(value=True)
+                self.section_vars[section] = var
+                cb = tk.Checkbutton(
+                    scrollable_frame,
+                    text=fix_rtl(f"{section} - {count} terms", wrap_width=None),
+                    variable=var,
+                    font=("Helvetica", 10),
+                    fg="white",
+                    bg="#2c3e50",
+                    selectcolor="#34495e",
+                    activebackground="#2c3e50",
+                    activeforeground="white",
+                    anchor="w",
+                )
+                cb.pack(fill=tk.X, anchor="w")
+
+        # Mode buttons in 2x2 grid
+        buttons_frame = tk.Frame(self.frame, bg="#2c3e50")
+        buttons_frame.pack(pady=5)
+
         simple_mode_btn = tk.Button(
-            self.frame,
+            buttons_frame,
             text="Simple Mode",
             font=("Helvetica", 14),
             command=self.start_simple_mode,
-            width=15,
+            width=12,
         )
-        simple_mode_btn.pack(pady=5)
+        simple_mode_btn.grid(row=0, column=0, padx=5, pady=3)
 
-        # Inverted Mode button
         inverted_mode_btn = tk.Button(
-            self.frame,
+            buttons_frame,
             text="Inverted Mode",
             font=("Helvetica", 14),
             command=self.start_inverted_mode,
-            width=15,
+            width=12,
         )
-        inverted_mode_btn.pack(pady=5)
+        inverted_mode_btn.grid(row=0, column=1, padx=5, pady=3)
 
-        # Quiz Mode button
         quiz_mode_btn = tk.Button(
-            self.frame,
+            buttons_frame,
             text="Quiz Mode",
             font=("Helvetica", 14),
             command=self.start_quiz_mode,
-            width=15,
+            width=12,
         )
-        quiz_mode_btn.pack(pady=5)
+        quiz_mode_btn.grid(row=1, column=0, padx=5, pady=3)
 
-        # Scoreboard button
         scoreboard_btn = tk.Button(
-            self.frame,
+            buttons_frame,
             text="Scoreboard",
             font=("Helvetica", 14),
             command=self.start_scoreboard_mode,
-            width=15,
+            width=12,
         )
-        scoreboard_btn.pack(pady=5)
+        scoreboard_btn.grid(row=1, column=1, padx=5, pady=3)
 
     def get_card_count(self) -> int:
         """Return the selected number of cards."""
         return self.card_count_var.get()
+
+    def _check_all(self):
+        """Set all section checkboxes to True."""
+        for var in self.section_vars.values():
+            var.set(True)
+
+    def _uncheck_all(self):
+        """Set all section checkboxes to False."""
+        for var in self.section_vars.values():
+            var.set(False)
+
+    def get_selected_sections(self) -> set[str]:
+        """Return the set of selected section names."""
+        return {section for section, var in self.section_vars.items() if var.get()}
 
     def show(self):
         """Show the main menu."""

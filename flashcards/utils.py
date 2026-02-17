@@ -8,6 +8,8 @@ import textwrap
 
 def fix_rtl(text: str, wrap_width: int = 25) -> str:
     """Fix right-to-left text display by wrapping and applying bidi algorithm."""
+    if wrap_width is None:
+        return get_display(text)
     # We do the wrapping manually outside of tkinter to handle peculiarities since the text is RTL
     lines = textwrap.wrap(text, width=wrap_width)
     return "\n".join([get_display(line) for line in lines])
@@ -29,17 +31,30 @@ def calculate_font_size(text: str) -> dict:
         return {'font_size': 12, 'wrap_chars': 45, 'wraplength': 380}
 
 
-def parse_markdown_tables(filepath: str) -> list[dict]:
-    """Parse markdown tables from file and return list of flash cards."""
+def parse_markdown_tables(filepath: str) -> tuple[list[dict], list[str]]:
+    """Parse markdown tables from file and return list of flash cards with sections."""
     cards = []
+    sections = []
+    current_section = "General"
     content = Path(filepath).read_text(encoding="utf-8")
     lines = content.split("\n")
 
     i = 0
     while i < len(lines):
         line = lines[i].strip()
+
+        # Check for section title (line followed by ====)
+        if i + 1 < len(lines) and lines[i + 1].strip().startswith("===="):
+            current_section = line
+            if current_section not in sections:
+                sections.append(current_section)
+            i += 2
+            continue
+
         # Check if this is a table header row (starts with |)
         if line.startswith("|") and "|" in line[1:]:
+            if current_section not in sections:
+                sections.append(current_section)
             # Skip the separator line (contains ----)
             if i + 1 < len(lines) and "----" in lines[i + 1]:
                 i += 2  # Move past header and separator
@@ -59,10 +74,11 @@ def parse_markdown_tables(filepath: str) -> list[dict]:
                             "term": cells[0],
                             "interpretation": cells[1],
                             "extra": cells[2] if len(cells) > 2 else "",
+                            "section": current_section,
                         }
                         cards.append(card)
                     i += 1
                 continue
         i += 1
 
-    return cards
+    return cards, sections
