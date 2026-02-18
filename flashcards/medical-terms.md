@@ -195,7 +195,7 @@ abdomen is the largest cavity in the body. It has many different organs with dif
 | ---- | -------------- |
 | abdomen | בטן |
 | abdominal cavity | החלל בין ה-thorax ל-pelvis |
-| vertebrates | העצמות שמגנות על חוט השדרה |
+| vertebrae | העצמות שמגנות על חוט השדרה |
 | liver | right upper quadrent, solid, biochemical factory, secretes bile (English) |
 | hepat | right upper quadrent, solid, biochemical factory, secretes bile (Latin) |
 | galbladder | right upper quadrent, hollow, a storage for bile (English) |
