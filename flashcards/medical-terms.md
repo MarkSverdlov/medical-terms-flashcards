@@ -216,3 +216,47 @@ abdomen is the largest cavity in the body. It has many different organs with dif
 | peritoneum | a sac that holds most of the abdominal organs, beside the kidneys and bladders |
 | inferior vena cava | the vein that returns deoxygenated blood from the abdomen to the heart |
 | abdominal aorta | the artery that supplies blood to the lower part of the body |
+
+The Musculoskeletal System
+===========================
+| term | interpretation |
+| ---- | -------------- |
+| Musculoskeletal System | מערכת השרירים והשלד |
+| 206 | מספר העצמות בגוף האדם |
+| cartilage | rigid, flexible connective tissue between bones, covers the ends of the long bones |
+| intervertebral disk | cartilage between vertebrae |
+| ossa | rigid organs the constitute the skeleton (Greek, plural) |
+| tendon | a tough band of dense connective tissues the connects muscle to bone |
+| juncturae | a subset of bones that allow movements |
+| scapula | עצם השכמה שסוגרת את בית החזה מאחור |
+| clavicle | עצם הבריח סוגרת את בית החזה מלמעלה |
+| humerus | the bone between the shoulder to the elbow |
+| radius | the longer bone between the elbow to the hand |
+| ulna | the shorter bone between the elbow to the hand |
+| carpals | the bones of the hand |
+| ilium | the large "elepehent ears" bone in the pelvis |
+| sacrum | the shield shaped bone at the base of the lumbar vertebrae, forming the posterior pelvic wall |
+| acetabulum | cup shaped socket on the lateral pelvis that articulates with the femoral head to form the hip joint
+| coccyx | the bony structure at the base of the spine, inferior to the sacrum, consists 3-5 vertebrae |
+| femur | the longest, heaviest and strongest bone, from the hip to the knee |
+| patella | the kneecap |
+| tibia | the longer bone at the lower leg, analogue to radius |
+| fibula | the shorter bone at the lower leg, analouge to ulna |
+| parietal bone | the bone in the cranium above the brain |
+| occiptal bone | the bone in the cranium behind the brain |
+| temporal bone | the bone in the cranium lateral to the brain |
+| frontal bone | the bone in the cranium anterior to the brain |
+| sphenoid bone | the bone in the cranium at the base of the neurocranium |
+| zygoma | the bony arch of the cheek |
+| maxilla | the upper jaw bone |
+| mandible | the lower jaw bone |
+| foramen magnum | the hole at the base of the cranium whereas the spinal cord passes to the vertebral column |
+| sternum | the bone anterior to the ribcage |
+| ribs | 12 bones growing from the vertebral column: 7 from the vertebrae to the sternum, 3 from the vertebrae to cartilage, 2 free |
+| crevical vertebrae | the first 7 verterbrae, neck |
+| thoracic vertebrae | the 12 vertebrae posterior to the chest |
+| lumbar vertebrae | the 5 largest vertebrae
+| sacrum vertebrae | the 5 vertebrae inside the pelvis |
+| striated muscles | muscles connected to bones, somatic innervation |
+| smooth muscles | muscles disconnected to bones, autonomic innervation |
+| myocardium | the heart muscle |
