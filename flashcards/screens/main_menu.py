@@ -96,9 +96,9 @@ class MainMenu:
 
             # Scrollable frame for section checkboxes
             canvas_frame = tk.Frame(self.frame, bg="#2c3e50")
-            canvas_frame.pack(pady=2, fill=tk.X, padx=20)
+            canvas_frame.pack(pady=2, padx=20)
 
-            canvas = tk.Canvas(canvas_frame, bg="#2c3e50", height=70, highlightthickness=0)
+            canvas = tk.Canvas(canvas_frame, bg="#2c3e50", height=70, width=260, highlightthickness=0)
             scrollbar = tk.Scrollbar(canvas_frame, orient="vertical", command=canvas.yview)
             scrollable_frame = tk.Frame(canvas, bg="#2c3e50")
 
@@ -110,8 +110,8 @@ class MainMenu:
             canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
             canvas.configure(yscrollcommand=scrollbar.set)
 
+            scrollbar.pack(side="left", fill="y")
             canvas.pack(side="left", fill=tk.BOTH, expand=True)
-            scrollbar.pack(side="right", fill="y")
 
             # Create checkbox for each section
             for section, count in self.section_counts.items():
