@@ -34,7 +34,7 @@ Medical Flashcards is a Tkinter-based educational app for learning medical termi
 ### Data Flow
 1. `medical-terms.md` → `parse_markdown_tables()` → card list
 2. Cards filtered by selected sections in MainMenu
-3. Cards shuffled and limited to requested count
+3. Cards sampled (with replacement) and spread-shuffled to requested count
 4. Screen displays cards with navigation
 
 ### Card Structure
@@ -46,6 +46,8 @@ Medical Flashcards is a Tkinter-based educational app for learning medical termi
 - `fix_rtl()`: Hebrew text display using python-bidi
 - `parse_markdown_tables()`: Extracts cards from markdown
 - `calculate_font_size()`: Dynamic sizing based on text length
+- `spread_shuffle_with_replacement()`: Samples k cards with replacement, spreads sections apart
+- `spread_shuffle()`: Reshuffles existing cards with sections spread apart
 
 ### Persistence (`history.py`)
 Quiz history stored as CSV at `~/.local/share/flashcards/history.csv`
@@ -57,3 +59,15 @@ Terms live in `flashcards/medical-terms.md` as markdown tables with sections mar
 ## Answer Validation
 
 Quiz answers are normalized: case-insensitive, dash-insensitive, supports comma-separated alternatives. Credit given for subset matches.
+
+## Shuffle Algorithm
+
+Uses a "humanly random" spread shuffle instead of pure random shuffle. This prevents clustering of cards from the same section, which can feel non-random to users.
+
+Algorithm:
+1. Sample k cards with replacement (supports requesting more cards than available)
+2. Group sampled cards by section
+3. Shuffle within each section group
+4. Round-robin merge: take one card from each section in turn
+
+This spreads sections apart while maintaining randomness within and across sections.

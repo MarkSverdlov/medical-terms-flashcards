@@ -1,10 +1,10 @@
 """Main application controller managing screens."""
 
-import random
 import tkinter as tk
 
 from .screens import MainMenu, FlashCardApp, QuizCardApp, QuizResultsScreen, ScoreboardScreen
 from .history import save_quiz_result
+from .utils import spread_shuffle_with_replacement
 
 
 class App:
@@ -42,9 +42,7 @@ class App:
         if not filtered:
             filtered = self.cards  # fallback if none selected
         card_count = self.main_menu.get_card_count()
-        mode_cards = random.choices(filtered, k=card_count)
-        random.shuffle(mode_cards)
-        return mode_cards
+        return spread_shuffle_with_replacement(filtered, card_count)
 
     def _start_simple_mode(self):
         """Switch to simple mode (flashcard game)."""

@@ -21,6 +21,7 @@ from flashcards.app import (
     save_quiz_result,
     get_history_path,
 )
+from flashcards.utils import spread_shuffle, spread_shuffle_with_replacement
 
 
 # =============================================================================
@@ -281,6 +282,147 @@ class TestFixRtl:
         short_text = "קצר"
         result = fix_rtl(short_text)
         assert "\n" not in result
+
+
+# =============================================================================
+# Tests for spread_shuffle functions
+# =============================================================================
+
+class TestSpreadShuffle:
+    """Tests for the spread_shuffle function."""
+
+    def test_spread_shuffle_empty_list(self):
+        """Test spread_shuffle with empty list."""
+        result = spread_shuffle([])
+        assert result == []
+
+    def test_spread_shuffle_single_card(self):
+        """Test spread_shuffle with single card."""
+        cards = [{"term": "a", "section": "A"}]
+        result = spread_shuffle(cards)
+        assert len(result) == 1
+        assert result[0]["term"] == "a"
+
+    def test_spread_shuffle_preserves_all_cards(self):
+        """Test that spread_shuffle preserves all cards."""
+        cards = [
+            {"term": "a1", "section": "A"},
+            {"term": "a2", "section": "A"},
+            {"term": "b1", "section": "B"},
+            {"term": "b2", "section": "B"},
+        ]
+        result = spread_shuffle(cards)
+        assert len(result) == 4
+        result_terms = {c["term"] for c in result}
+        expected_terms = {"a1", "a2", "b1", "b2"}
+        assert result_terms == expected_terms
+
+    def test_spread_shuffle_spreads_sections(self):
+        """Test that spread_shuffle spreads sections apart."""
+        # Create cards heavily weighted to one section
+        cards = [
+            {"term": "a1", "section": "A"},
+            {"term": "a2", "section": "A"},
+            {"term": "a3", "section": "A"},
+            {"term": "a4", "section": "A"},
+            {"term": "b1", "section": "B"},
+            {"term": "b2", "section": "B"},
+        ]
+        # Run multiple times to verify spreading behavior
+        max_consecutive_same_section = 0
+        for _ in range(10):
+            result = spread_shuffle(cards.copy())
+            consecutive = 1
+            for i in range(1, len(result)):
+                if result[i]["section"] == result[i-1]["section"]:
+                    consecutive += 1
+                    max_consecutive_same_section = max(max_consecutive_same_section, consecutive)
+                else:
+                    consecutive = 1
+
+        # With round-robin, we should rarely see more than 2 consecutive same-section cards
+        # (can happen when one section is exhausted)
+        assert max_consecutive_same_section <= 3
+
+    def test_spread_shuffle_single_section(self):
+        """Test spread_shuffle when all cards are from same section."""
+        cards = [
+            {"term": "a1", "section": "A"},
+            {"term": "a2", "section": "A"},
+            {"term": "a3", "section": "A"},
+        ]
+        result = spread_shuffle(cards)
+        assert len(result) == 3
+
+    def test_spread_shuffle_returns_new_list(self):
+        """Test that spread_shuffle returns a new list."""
+        cards = [{"term": "a", "section": "A"}, {"term": "b", "section": "B"}]
+        result = spread_shuffle(cards)
+        assert result is not cards
+
+
+class TestSpreadShuffleWithReplacement:
+    """Tests for the spread_shuffle_with_replacement function."""
+
+    def test_empty_list(self):
+        """Test with empty list returns empty."""
+        result = spread_shuffle_with_replacement([], 10)
+        assert result == []
+
+    def test_samples_correct_count(self):
+        """Test that correct number of cards are sampled."""
+        cards = [
+            {"term": "a", "section": "A"},
+            {"term": "b", "section": "B"},
+        ]
+        result = spread_shuffle_with_replacement(cards, 10)
+        assert len(result) == 10
+
+    def test_samples_more_than_available(self):
+        """Test sampling more cards than available (with replacement)."""
+        cards = [{"term": "only", "section": "A"}]
+        result = spread_shuffle_with_replacement(cards, 5)
+        assert len(result) == 5
+        # All cards should be the same since only one exists
+        for card in result:
+            assert card["term"] == "only"
+
+    def test_preserves_card_structure(self):
+        """Test that card structure is preserved."""
+        cards = [
+            {"term": "a", "interpretation": "interp_a", "extra": "ex", "section": "A"},
+        ]
+        result = spread_shuffle_with_replacement(cards, 3)
+        for card in result:
+            assert "term" in card
+            assert "interpretation" in card
+            assert "extra" in card
+            assert "section" in card
+
+    def test_spreads_sections_after_sampling(self):
+        """Test that sections are spread apart after sampling."""
+        cards = [
+            {"term": "a1", "section": "A"},
+            {"term": "a2", "section": "A"},
+            {"term": "b1", "section": "B"},
+            {"term": "b2", "section": "B"},
+        ]
+        # Sample many cards to test spreading
+        result = spread_shuffle_with_replacement(cards, 20)
+        assert len(result) == 20
+
+        # Check that we don't have long runs of same section
+        max_consecutive = 1
+        consecutive = 1
+        for i in range(1, len(result)):
+            if result[i]["section"] == result[i-1]["section"]:
+                consecutive += 1
+                max_consecutive = max(max_consecutive, consecutive)
+            else:
+                consecutive = 1
+
+        # Should be reasonably spread (not all same section together)
+        assert max_consecutive < len(result)
 
 
 # =============================================================================
@@ -1309,9 +1451,8 @@ class TestApp:
     @patch('tkinter.Canvas')
     @patch('tkinter.Scrollbar')
     @patch('tkinter.Checkbutton')
-    @patch('random.choices')
-    @patch('random.shuffle')
-    def test_start_simple_mode(self, mock_shuffle, mock_choices, mock_checkbutton,
+    @patch('flashcards.controller.spread_shuffle_with_replacement')
+    def test_start_simple_mode(self, mock_spread_shuffle, mock_checkbutton,
                                 mock_scrollbar, mock_canvas, mock_boolvar, mock_intvar,
                                 mock_spinbox, mock_button, mock_label, mock_frame,
                                 mock_flashcard_app, mock_root, sample_cards):
@@ -1322,16 +1463,15 @@ class TestApp:
         mock_frame.return_value = MagicMock()
         mock_canvas.return_value = MagicMock()
         mock_boolvar.return_value = MagicMock()
-        mock_choices.return_value = sample_cards
+        mock_spread_shuffle.return_value = sample_cards
 
         app = App(mock_root, sample_cards)
         # Mock get_selected_sections to return the section in sample_cards
         app.main_menu.get_selected_sections = MagicMock(return_value={"General"})
         app._start_simple_mode()
 
-        # random.choices samples with replacement, so k equals the requested card_count
-        mock_choices.assert_called_with(sample_cards, k=50)
-        mock_shuffle.assert_called()
+        # spread_shuffle_with_replacement samples with replacement and spreads sections
+        mock_spread_shuffle.assert_called_with(sample_cards, 50)
 
     @patch('flashcards.app.FlashCardApp')
     @patch('tkinter.Frame')
@@ -1343,9 +1483,8 @@ class TestApp:
     @patch('tkinter.Canvas')
     @patch('tkinter.Scrollbar')
     @patch('tkinter.Checkbutton')
-    @patch('random.choices')
-    @patch('random.shuffle')
-    def test_start_inverted_mode(self, mock_shuffle, mock_choices, mock_checkbutton,
+    @patch('flashcards.controller.spread_shuffle_with_replacement')
+    def test_start_inverted_mode(self, mock_spread_shuffle, mock_checkbutton,
                                   mock_scrollbar, mock_canvas, mock_boolvar, mock_intvar,
                                   mock_spinbox, mock_button, mock_label, mock_frame,
                                   mock_flashcard_app, mock_root, sample_cards):
@@ -1356,15 +1495,15 @@ class TestApp:
         mock_frame.return_value = MagicMock()
         mock_canvas.return_value = MagicMock()
         mock_boolvar.return_value = MagicMock()
-        mock_choices.return_value = sample_cards
+        mock_spread_shuffle.return_value = sample_cards
 
         app = App(mock_root, sample_cards)
         # Mock get_selected_sections to return the section in sample_cards
         app.main_menu.get_selected_sections = MagicMock(return_value={"General"})
         app._start_inverted_mode()
 
-        # random.choices samples with replacement, so k equals the requested card_count
-        mock_choices.assert_called_with(sample_cards, k=75)
+        # spread_shuffle_with_replacement samples with replacement and spreads sections
+        mock_spread_shuffle.assert_called_with(sample_cards, 75)
 
     @patch('flashcards.app.QuizCardApp')
     @patch('tkinter.Frame')
@@ -1376,9 +1515,8 @@ class TestApp:
     @patch('tkinter.Canvas')
     @patch('tkinter.Scrollbar')
     @patch('tkinter.Checkbutton')
-    @patch('random.choices')
-    @patch('random.shuffle')
-    def test_start_quiz_mode(self, mock_shuffle, mock_choices, mock_checkbutton,
+    @patch('flashcards.controller.spread_shuffle_with_replacement')
+    def test_start_quiz_mode(self, mock_spread_shuffle, mock_checkbutton,
                               mock_scrollbar, mock_canvas, mock_boolvar, mock_intvar,
                               mock_spinbox, mock_button, mock_label, mock_frame,
                               mock_quiz_app, mock_root, sample_cards):
@@ -1389,15 +1527,15 @@ class TestApp:
         mock_frame.return_value = MagicMock()
         mock_canvas.return_value = MagicMock()
         mock_boolvar.return_value = MagicMock()
-        mock_choices.return_value = sample_cards
+        mock_spread_shuffle.return_value = sample_cards
 
         app = App(mock_root, sample_cards)
         # Mock get_selected_sections to return the section in sample_cards
         app.main_menu.get_selected_sections = MagicMock(return_value={"General"})
         app._start_quiz_mode()
 
-        # random.choices samples with replacement, so k equals the requested card_count
-        mock_choices.assert_called_with(sample_cards, k=100)
+        # spread_shuffle_with_replacement samples with replacement and spreads sections
+        mock_spread_shuffle.assert_called_with(sample_cards, 100)
 
     @patch('tkinter.Frame')
     @patch('tkinter.Label')

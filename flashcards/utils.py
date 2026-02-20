@@ -1,9 +1,72 @@
 """Utility functions for the flash card application."""
 
+import random
+from collections import defaultdict
 from pathlib import Path
 
 from bidi import get_display
 import textwrap
+
+
+def spread_shuffle_with_replacement(cards: list[dict], k: int) -> list[dict]:
+    """Sample k cards with replacement, then spread sections apart.
+
+    This creates a "humanly random" shuffle by:
+    1. Sampling k cards with replacement (allowing duplicates)
+    2. Grouping by section and shuffling within each section
+    3. Round-robin merging to spread cards from the same section apart
+
+    Args:
+        cards: List of card dictionaries with 'section' key
+        k: Number of cards to sample
+
+    Returns:
+        A list of k cards with sections spread apart
+    """
+    if not cards:
+        return []
+
+    # Sample with replacement
+    sampled = random.choices(cards, k=k)
+
+    return spread_shuffle(sampled)
+
+
+def spread_shuffle(cards: list[dict]) -> list[dict]:
+    """Shuffle cards while spreading sections apart.
+
+    Groups cards by section, shuffles within each group, then round-robin
+    merges to minimize consecutive cards from the same section.
+
+    Args:
+        cards: List of card dictionaries with 'section' key
+
+    Returns:
+        A new list with cards spread by section
+    """
+    if not cards:
+        return []
+
+    # Group by section
+    by_section = defaultdict(list)
+    for card in cards:
+        by_section[card.get('section', '')].append(card)
+
+    # Shuffle within each section group
+    for section_cards in by_section.values():
+        random.shuffle(section_cards)
+
+    # Round-robin merge from each section
+    result = []
+    sections = list(by_section.values())
+    random.shuffle(sections)  # randomize section order
+
+    while any(sections):
+        for section_cards in sections:
+            if section_cards:
+                result.append(section_cards.pop())
+
+    return result
 
 
 def fix_rtl(text: str, wrap_width: int = 25) -> str:

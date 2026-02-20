@@ -1,9 +1,9 @@
 """FlashCard screen for the flash card application."""
 
-import random
 import tkinter as tk
 
 from ..base import BaseCardApp
+from ..utils import spread_shuffle
 
 
 class FlashCardApp(BaseCardApp):
@@ -167,7 +167,7 @@ class FlashCardApp(BaseCardApp):
             self._on_card_changed()
 
     def _shuffle_cards(self):
-        """Shuffle the cards randomly."""
-        random.shuffle(self.cards)
+        """Shuffle the cards with sections spread apart."""
+        self.cards = spread_shuffle(self.cards)
         self.current_index = 0
         self._on_card_changed()
