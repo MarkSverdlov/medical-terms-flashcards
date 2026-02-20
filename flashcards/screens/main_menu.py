@@ -98,20 +98,26 @@ class MainMenu:
             canvas_frame = tk.Frame(self.frame, bg="#2c3e50")
             canvas_frame.pack(pady=2, padx=20)
 
-            canvas = tk.Canvas(canvas_frame, bg="#2c3e50", height=70, width=260, highlightthickness=0)
-            scrollbar = tk.Scrollbar(canvas_frame, orient="vertical", command=canvas.yview)
-            scrollable_frame = tk.Frame(canvas, bg="#2c3e50")
+            self.canvas = tk.Canvas(canvas_frame, bg="#2c3e50", height=70, width=260, highlightthickness=0)
+            scrollbar = tk.Scrollbar(canvas_frame, orient="vertical", command=self.canvas.yview)
+            scrollable_frame = tk.Frame(self.canvas, bg="#2c3e50")
 
             scrollable_frame.bind(
                 "<Configure>",
-                lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+                lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
             )
 
-            canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-            canvas.configure(yscrollcommand=scrollbar.set)
+            self.canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+            self.canvas.configure(yscrollcommand=scrollbar.set)
 
             scrollbar.pack(side="left", fill="y")
-            canvas.pack(side="left", fill=tk.BOTH, expand=True)
+            self.canvas.pack(side="left", fill=tk.BOTH, expand=True)
+
+            # Bind keyboard events for scrolling
+            self.frame.bind("<Down>", self._scroll_down)
+            self.frame.bind("<Up>", self._scroll_up)
+            self.frame.bind("<Control-d>", self._scroll_to_bottom)
+            self.frame.bind("<Control-u>", self._scroll_to_top)
 
             # Create checkbox for each section
             for section, count in self.section_counts.items():
@@ -185,6 +191,26 @@ class MainMenu:
         for var in self.section_vars.values():
             var.set(False)
 
+    def _scroll_down(self, event=None):
+        """Scroll the sections list down."""
+        if hasattr(self, 'canvas'):
+            self.canvas.yview_scroll(1, "units")
+
+    def _scroll_up(self, event=None):
+        """Scroll the sections list up."""
+        if hasattr(self, 'canvas'):
+            self.canvas.yview_scroll(-1, "units")
+
+    def _scroll_to_bottom(self, event=None):
+        """Scroll the sections list to the bottom."""
+        if hasattr(self, 'canvas'):
+            self.canvas.yview_moveto(1.0)
+
+    def _scroll_to_top(self, event=None):
+        """Scroll the sections list to the top."""
+        if hasattr(self, 'canvas'):
+            self.canvas.yview_moveto(0.0)
+
     def get_selected_sections(self) -> set[str]:
         """Return the set of selected section names."""
         return {section for section, var in self.section_vars.items() if var.get()}
@@ -192,6 +218,7 @@ class MainMenu:
     def show(self):
         """Show the main menu."""
         self.frame.pack(fill=tk.BOTH, expand=True)
+        self.frame.focus_set()
 
     def hide(self):
         """Hide the main menu."""
