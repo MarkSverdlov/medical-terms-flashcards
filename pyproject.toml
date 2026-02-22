@@ -19,3 +19,8 @@ where = ["."]
 
 [tool.setuptools.package-data]
 flashcards = ["*.md"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]
