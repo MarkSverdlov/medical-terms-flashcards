@@ -43,7 +43,7 @@ Medical Flashcards is a Tkinter-based educational app for learning medical termi
 ```
 
 ### Key Utilities (`utils.py`)
-- `fix_rtl()`: Hebrew text display using python-bidi
+- `fix_rtl()`: Hebrew text display using python-bidi. Preserves paragraph breaks (`\n\n`) by wrapping each paragraph independently.
 - `parse_markdown_tables()`: Extracts cards from markdown
 - `calculate_font_size()`: Dynamic sizing based on text length
 - `spread_shuffle_with_replacement()`: Samples k cards with replacement, spreads sections apart

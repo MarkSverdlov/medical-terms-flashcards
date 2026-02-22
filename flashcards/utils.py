@@ -74,8 +74,12 @@ def fix_rtl(text: str, wrap_width: int = 25) -> str:
     if wrap_width is None:
         return get_display(text)
     # We do the wrapping manually outside of tkinter to handle peculiarities since the text is RTL
-    lines = textwrap.wrap(text, width=wrap_width)
-    return "\n".join([get_display(line) for line in lines])
+    text_parts = text.split("\n\n")
+    wrapped_parts = []
+    for part in text_parts:
+        lines = textwrap.wrap(part, width=wrap_width)
+        wrapped_parts.append(lines)
+    return "\n\n".join(["\n".join([get_display(line) for line in lines]) for lines in wrapped_parts])
 
 
 def calculate_font_size(text: str) -> dict:

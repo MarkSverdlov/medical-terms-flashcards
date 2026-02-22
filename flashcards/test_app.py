@@ -283,6 +283,41 @@ class TestFixRtl:
         result = fix_rtl(short_text)
         assert "\n" not in result
 
+    def test_fix_rtl_preserves_paragraph_breaks(self):
+        """Test that paragraph breaks (double newlines) are preserved."""
+        text = "פסקה ראשונה\n\nפסקה שנייה"
+        result = fix_rtl(text)
+        assert "\n\n" in result
+
+    def test_fix_rtl_multiple_paragraphs(self):
+        """Test multiple paragraphs are each wrapped independently."""
+        text = "קצר\n\nקצר גם"
+        result = fix_rtl(text)
+        # Should have paragraph break but no additional wrapping within short paragraphs
+        assert "\n\n" in result
+        lines = result.split("\n\n")
+        assert len(lines) == 2
+
+    def test_fix_rtl_long_paragraphs_wrap_independently(self):
+        """Test that each paragraph wraps independently."""
+        para1 = "א" * 50  # Long paragraph that will wrap
+        para2 = "ב" * 50  # Another long paragraph
+        text = f"{para1}\n\n{para2}"
+        result = fix_rtl(text)
+        # Should have paragraph break preserved
+        assert "\n\n" in result
+        # Each paragraph should have wrapped (contain single newlines)
+        parts = result.split("\n\n")
+        assert len(parts) == 2
+        assert "\n" in parts[0]  # First para wrapped
+        assert "\n" in parts[1]  # Second para wrapped
+
+
+    def test_fix_rtl_conserves_double_newline(self):
+        """Test that if double new line exists in the text, then it is conserved."""
+        text = "הסבר אורך מאוד בנושא דברים מאוד ארוכים:\n" + "א"*50 +"\n\nדוגמה שממחישה את הנושא (extra)"
+        result = fix_rtl(text, wrap_width=25)
+        assert "\n\n" in result
 
 # =============================================================================
 # Tests for spread_shuffle functions
