@@ -260,3 +260,32 @@ The Musculoskeletal System
 | striated muscles | muscles connected to bones, somatic innervation |
 | smooth muscles | muscles disconnected to bones, autonomic innervation |
 | myocardium | the heart muscle |
+
+
+Cardiology
+==========
+| term | interpretation |
+| ---- | -------------- |
+| sinuatrial node,sinoatrial node | inferior to the superior vena cava, posterior wall of the right atrium, produce eletrical impulse that makes the heart contract
+| atrium | one of the two upper chambers of the heart that recieve blood from the circulatory system |
+| right atrium | recieve dyoxygenated blood from the systemic circulation via the venae cavae |
+| left atrium | recieve oxygenated blood from the pulmonary vein |
+| right ventricale | expels dyoxygenated blood to the pulmonary circulation |
+| left ventricale | expels oxygenated blood to the systemic circulation via the aorta |
+| ventricale | one of the two large chambers of the heart that expel blood to the circulatory systems |
+| atrioventricular node | the electrical node in the center of the heart |
+| 60-100 | דופק תקין למבוגר |
+| arrhythmia | a collective name for pathologies regarding the electrical heartbeat |
+| systemic circulation | the circulatory division that promote perfusion to the body |
+| pulmonary circulation | the circulatory division that oxygenates the blood |
+| ventricular tachycardia | an arrhythmia whereas a tachycardia occurs due to ventricular etiology. May consist a mechanical heartbeats and might also not |
+| systole | the part of the cardiac cycle during which the ventricales contract and expels blood forcefully |
+| diastole | the relaxed phase of the cardiac cycle |
+| asystole | the lack of electrical ventricular activity |
+| prognosis | medical forecast of outcome of a pathology |
+| diagnosis | medical determination of the patient pathology |
+| do not resuscitate | medical order that a person should not recieve cardiopulmonary resuscitation |
+| mmHg | pressure unit common in medical fields, apprxomately 133.3pascal |
+| metabolism | a collective term for all the chemical reactions that promote homeostasis |
+| supraventricular tachycardia | a tachycardia due to supraventricular etiology |
+| etiology | a reason to situation |
