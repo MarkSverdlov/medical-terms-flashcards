@@ -121,7 +121,7 @@ semi-advanced resuscitation
 | ---- | -------------- | --- |
 | LUCAS | מעסה לב אוטומטי | Lund University Cardioplumonary Assist System |
 | airway | נתב אוויר | נכנס לכל חולה מחוסר הכרה אחרי מדידת הגודל |
-| epiglottis | מכסה הגרון | |
+| epiglottis | מכסה הגרון, a cartilage | |
 | suction | שואב הפרשות | מפעילים אחרי הוצאת airway, אפשר להוציא airway עד פעמיים, אחרי זה לא מוציאים |
 | bag valve mask | אמבו | מכונת הנשמה ידנית, מניחים את המסיכה על החולה בשיטת C-E |
 
@@ -170,14 +170,15 @@ pulmonary system
 | sternum | העצם anterior ל-thorax |
 | ribs | צלעות |
 | trachea | קנה הנשימה |
-| bronchi | צינורות דרכי האוויר התחתונות, סימפונות |
+| bronchi | צינורות דרכי האוויר התחתונות, סימפונות (plural) |
 | alveolus | נאדיות הריאה, שם מתבצע שחלוף הגזים pulmonary circulation system |
 | saturation | אחוז ההמוגלובין שנושא חמצן בדם עורקי |
 | 40-60 | קצב נשימה של ילוד |
 | 20-30 | קצב נשימה של תינוק וגיל 3 |
 | 12-25 | קצב נשימה של גיל 8 |
 | 12-20 | קצב נשימה של מבוגר |
-| exhalation | נשיפה |
+| exhalation, expiration | נשיפה |
+| inhalation, inspiration | שאיפה |
 | diaphragm | the main muscles that create inhalation in children |the
 | intercostal muscles | the main muscles that create inhalation in adults |
 | pleura | flattened sac around each lung |
@@ -289,3 +290,18 @@ Cardiology
 | metabolism | a collective term for all the chemical reactions that promote homeostasis |
 | supraventricular tachycardia | a tachycardia due to supraventricular etiology |
 | etiology | a reason to situation |
+
+Foreign Body Airway Obstruction
+===============================
+| term | interpretation |
+| ---- | -------------- |
+| respiratory tract | a subdivision of the respiratory system involved with the process of conducting air to the alveoli.
+| pharynx | a passage in the throat containing the intersection of the esophagus and the larynx, downstream of the mouth. |
+| larynx | an organ in the top of the neck involved in breathing, producing sound and breathing. The epiglottis is superior to it and the trachea is inferior to it. |
+| foreign body airway obstruction | the pathology whence breathing is impeded by a blockage inside the respiratory tract. |
+| heimlich maneuver | a treatment for FBAO consisting of pressuring the diaphragm to induce ejection of the foreign body |
+| mild FBAO | a partial obstruction of the airways by a foreign body, may be identified ability to speak |
+| severe FBAO | a full obstruction of the airways by a foreign body, may be identidied by inability to speak |
+| stridor | extra thoracic high pitched breath sound resulting from turbulent airflow in the larynx |
+| wheeze | coarse, relatively low sound due to obstruction or narrowing in the lower respiratory tract, especially in the bronchi. |
+| sternor | snoring, a breathing sound originating the pharynx |
