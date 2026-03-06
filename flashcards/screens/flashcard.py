@@ -25,7 +25,50 @@ class FlashCardApp(BaseCardApp):
         title_text = "Simple Mode" if self.mode == "simple" else "Inverted Mode"
         self._create_header(title_text)
 
-        # Card area
+        # Pack bottom elements first so they reserve space before the expanding card_frame
+
+        # Shuffle button frame (bottom-most)
+        shuffle_frame = tk.Frame(self.frame, bg="#2c3e50")
+        shuffle_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=(0, 15))
+
+        self.shuffle_btn = tk.Button(
+            shuffle_frame,
+            text="🔀 Shuffle",
+            font=("Helvetica", 12),
+            command=self._shuffle_cards,
+            width=12,
+        )
+        self.shuffle_btn.pack()
+
+        # Navigation frame (above shuffle)
+        nav_frame = tk.Frame(self.frame, bg="#2c3e50")
+        nav_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
+
+        # Previous button
+        self.prev_btn = tk.Button(
+            nav_frame,
+            text="◀ Prev",
+            font=("Helvetica", 12),
+            command=self._prev_card,
+            width=8,
+        )
+        self.prev_btn.pack(side=tk.LEFT, padx=20)
+
+        # Counter label
+        self.counter_label = self._create_counter_label(nav_frame)
+        self.counter_label.pack(side=tk.LEFT, expand=True)
+
+        # Next button
+        self.next_btn = tk.Button(
+            nav_frame,
+            text="Next ▶",
+            font=("Helvetica", 12),
+            command=self._next_card,
+            width=8,
+        )
+        self.next_btn.pack(side=tk.RIGHT, padx=20)
+
+        # Card area (fills remaining space in the middle)
         self.card_frame = self._create_card_frame()
         self.card_frame.bind("<Button-1>", lambda e: self._flip_card())
 
@@ -52,47 +95,6 @@ class FlashCardApp(BaseCardApp):
         )
         self.hint_label.pack(pady=(0, 15))
         self.hint_label.bind("<Button-1>", lambda e: self._flip_card())
-
-        # Navigation frame
-        nav_frame = tk.Frame(self.frame, bg="#2c3e50")
-        nav_frame.pack(fill=tk.X, pady=10)
-
-        # Previous button
-        self.prev_btn = tk.Button(
-            nav_frame,
-            text="◀ Prev",
-            font=("Helvetica", 12),
-            command=self._prev_card,
-            width=8,
-        )
-        self.prev_btn.pack(side=tk.LEFT, padx=20)
-
-        # Counter label
-        self.counter_label = self._create_counter_label(nav_frame)
-        self.counter_label.pack(side=tk.LEFT, expand=True)
-
-        # Next button
-        self.next_btn = tk.Button(
-            nav_frame,
-            text="Next ▶",
-            font=("Helvetica", 12),
-            command=self._next_card,
-            width=8,
-        )
-        self.next_btn.pack(side=tk.RIGHT, padx=20)
-
-        # Shuffle button frame
-        shuffle_frame = tk.Frame(self.frame, bg="#2c3e50")
-        shuffle_frame.pack(fill=tk.X, pady=(0, 15))
-
-        self.shuffle_btn = tk.Button(
-            shuffle_frame,
-            text="🔀 Shuffle",
-            font=("Helvetica", 12),
-            command=self._shuffle_cards,
-            width=12,
-        )
-        self.shuffle_btn.pack()
 
     def _bind_keys(self):
         """Bind keyboard shortcuts."""

@@ -29,7 +29,59 @@ class QuizCardApp(BaseCardApp):
         # Header with back button and title
         self._create_header("Quiz Mode")
 
-        # Card area (non-clickable)
+        # Pack bottom elements first so they reserve space before the expanding card_frame
+
+        # Counter label (bottom-most)
+        self.counter_label = self._create_counter_label(self.frame)
+        self.counter_label.pack(side=tk.BOTTOM, pady=10)
+
+        # Result frame (above counter)
+        self.result_frame = tk.Frame(self.frame, bg="#2c3e50")
+        self.result_frame.pack(side=tk.BOTTOM, fill=tk.X, padx=30, pady=5)
+
+        # Inner result box (will be colored on answer)
+        self.result_box = tk.Frame(self.result_frame, padx=15, pady=8)
+        self.result_box.pack()
+
+        # Message label (e.g., "Correct!" or "Incorrect. Answer:")
+        self.result_msg_label = tk.Label(
+            self.result_box,
+            text="",
+            font=("Helvetica", 14),
+        )
+        self.result_msg_label.pack(side=tk.LEFT)
+
+        # Term label (bold, for emphasized terms)
+        self.result_term_label = tk.Label(
+            self.result_box,
+            text="",
+            font=("Helvetica", 14, "bold"),
+        )
+        self.result_term_label.pack(side=tk.LEFT)
+
+        # Entry frame (above result)
+        entry_frame = tk.Frame(self.frame, bg="#2c3e50")
+        entry_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
+
+        self.entry = tk.Entry(
+            entry_frame,
+            font=("Helvetica", 16),
+            width=30,
+            justify=tk.CENTER,
+        )
+        self.entry.pack(pady=5)
+
+        # Submit button
+        self.submit_btn = tk.Button(
+            entry_frame,
+            text="Submit",
+            font=("Helvetica", 12),
+            command=self._submit_answer,
+            width=10,
+        )
+        self.submit_btn.pack(pady=5)
+
+        # Card area (fills remaining space in the middle)
         self.card_frame = self._create_card_frame()
 
         # Interpretation label (main content)
@@ -53,56 +105,6 @@ class QuizCardApp(BaseCardApp):
             bg="#ecf0f1",
         )
         self.hint_label.pack(pady=(0, 15))
-
-        # Entry frame
-        entry_frame = tk.Frame(self.frame, bg="#2c3e50")
-        entry_frame.pack(fill=tk.X, pady=10)
-
-        self.entry = tk.Entry(
-            entry_frame,
-            font=("Helvetica", 16),
-            width=30,
-            justify=tk.CENTER,
-        )
-        self.entry.pack(pady=5)
-
-        # Submit button
-        self.submit_btn = tk.Button(
-            entry_frame,
-            text="Submit",
-            font=("Helvetica", 12),
-            command=self._submit_answer,
-            width=10,
-        )
-        self.submit_btn.pack(pady=5)
-
-        # Result frame (container for styled feedback)
-        self.result_frame = tk.Frame(self.frame, bg="#2c3e50")
-        self.result_frame.pack(fill=tk.X, padx=30, pady=5)
-
-        # Inner result box (will be colored on answer)
-        self.result_box = tk.Frame(self.result_frame, padx=15, pady=8)
-        self.result_box.pack()
-
-        # Message label (e.g., "Correct!" or "Incorrect. Answer:")
-        self.result_msg_label = tk.Label(
-            self.result_box,
-            text="",
-            font=("Helvetica", 14),
-        )
-        self.result_msg_label.pack(side=tk.LEFT)
-
-        # Term label (bold, for emphasized terms)
-        self.result_term_label = tk.Label(
-            self.result_box,
-            text="",
-            font=("Helvetica", 14, "bold"),
-        )
-        self.result_term_label.pack(side=tk.LEFT)
-
-        # Counter label
-        self.counter_label = self._create_counter_label(self.frame)
-        self.counter_label.pack(pady=10)
 
     def _bind_keys(self):
         """Bind keyboard shortcuts."""
