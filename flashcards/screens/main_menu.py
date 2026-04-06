@@ -113,6 +113,15 @@ class MainMenu:
             scrollbar.pack(side="left", fill="y")
             self.canvas.pack(side="left", fill=tk.BOTH, expand=True)
 
+            hint = tk.Label(
+                self.frame,
+                text="↑↓  Ctrl+U/D",
+                font=("Helvetica", 9),
+                bg="#2c3e50",
+                fg="#7f8c8d",
+            )
+            hint.pack()
+
             # Bind keyboard events for scrolling
             self.frame.bind("<Down>", self._scroll_down)
             self.frame.bind("<Up>", self._scroll_up)
