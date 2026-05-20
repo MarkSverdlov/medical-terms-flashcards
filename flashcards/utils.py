@@ -94,8 +94,16 @@ def calculate_font_size(text: str) -> dict:
         return {'font_size': 16, 'wrap_chars': 35, 'wraplength': 420}
     elif text_len <= 150:
         return {'font_size': 14, 'wrap_chars': 40, 'wraplength': 400}
-    else:
+    elif text_len <= 200:
         return {'font_size': 12, 'wrap_chars': 45, 'wraplength': 380}
+    elif text_len <= 300:
+        return {'font_size': 10, 'wrap_chars': 50, 'wraplength': 400}
+    elif text_len <= 400:
+        return {'font_size': 9, 'wrap_chars': 60, 'wraplength': 400}
+    elif text_len <= 500:
+        return {'font_size': 8, 'wrap_chars': 65, 'wraplength': 400}
+    else:
+        return {'font_size': 7, 'wrap_chars': 70, 'wraplength': 400}
 
 
 def parse_markdown_tables(filepath: str) -> tuple[list[dict], list[str]]:
