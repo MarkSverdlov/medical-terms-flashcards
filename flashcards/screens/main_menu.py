@@ -128,6 +128,14 @@ class MainMenu:
             self.frame.bind("<Control-d>", self._scroll_to_bottom)
             self.frame.bind("<Control-u>", self._scroll_to_top)
 
+            # Bind mouse wheel events for scrolling
+            self.canvas.bind("<Button-4>", self._on_mousewheel)
+            self.canvas.bind("<Button-5>", self._on_mousewheel)
+            self.canvas.bind("<MouseWheel>", self._on_mousewheel)
+            scrollable_frame.bind("<Button-4>", self._on_mousewheel)
+            scrollable_frame.bind("<Button-5>", self._on_mousewheel)
+            scrollable_frame.bind("<MouseWheel>", self._on_mousewheel)
+
             # Create checkbox for each section
             for section, count in self.section_counts.items():
                 var = tk.BooleanVar(value=True)
@@ -145,6 +153,9 @@ class MainMenu:
                     anchor="w",
                 )
                 cb.pack(fill=tk.X, anchor="w")
+                cb.bind("<Button-4>", self._on_mousewheel)
+                cb.bind("<Button-5>", self._on_mousewheel)
+                cb.bind("<MouseWheel>", self._on_mousewheel)
 
         # Mode buttons in 2x2 grid
         buttons_frame = tk.Frame(self.frame, bg="#2c3e50")
@@ -219,6 +230,14 @@ class MainMenu:
         """Scroll the sections list to the top."""
         if hasattr(self, 'canvas'):
             self.canvas.yview_moveto(0.0)
+
+    def _on_mousewheel(self, event):
+        if event.num == 4:
+            self.canvas.yview_scroll(-1, "units")
+        elif event.num == 5:
+            self.canvas.yview_scroll(1, "units")
+        else:
+            self.canvas.yview_scroll(-1 if event.delta > 0 else 1, "units")
 
     def get_selected_sections(self) -> set[str]:
         """Return the set of selected section names."""
